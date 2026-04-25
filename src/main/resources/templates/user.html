@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/default :: layout(~{::title}, ~{::section})}">
+
+<head>
+    <title>Title from User personal page</title>
+</head>
+<body>
+
+<section th:fragment="section">
+
+    <!-- Контент страницы -->
+    <h1 th:text="'Добро пожаловать, ' + ${user.name} + '!'">Welcome message</h1>
+
+    <div th:if="${#request.userPrincipal != null and #request.isUserInRole('ADMIN')}"
+         style="text-align: left; margin: 20px 0;">
+        <form th:action="@{/admin}" method="get" style="display: inline;">
+            <button type="submit"
+                    style="background: green; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">
+                Админ-панель
+            </button>
+        </form>
+    </div>
+
+    <hr/>
+
+    <div>
+        <h1>Ваши данные:</h1>
+        <table>
+            <thead>
+            <tr>
+                <th>id</th>
+                <th>Имя</th>
+                <th>Возраст</th>
+                <th>Email</th>
+                <th th:if="${#request.isUserInRole('ADMIN')}">Пароль(хеш)</th>
+                <th>Роли</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td th:text="${user.id}"></td>
+                <td th:text="${user.name}"></td>
+                <td th:text="${user.age}"></td>
+                <td th:text="${user.email}"></td>
+                <td th:text="${user.password}" th:if="${#request.isUserInRole('ADMIN')}"></td>
+                <td>
+    <span th:each="role, iter : ${user.roles}"
+          th:text="${iter.index > 0 ? ', ' : ''} + ${#strings.replace(role.role, 'ROLE_', '')}">
+    </span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <a th:href="@{/}" style="display: block; text-align: center; width: 100%;">На главную страницу</a>
+
+    <hr/>
+
+</section>
+
+</body>
+</html>

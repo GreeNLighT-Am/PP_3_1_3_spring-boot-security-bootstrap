@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Fragments</title>
+</head>
+<body>
+
+<th:block th:fragment="logout-button">
+
+    <!-- Если пользователь авторизован -->
+    <div th:if="${#request.userPrincipal != null}" style="text-align: left; margin: 20px 0;">
+        <form th:action="@{/logout}" method="post" style="display: inline;">
+            <button type="submit"
+                    style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">
+                Выйти
+            </button>
+        </form>
+    </div>
+
+</th:block>
+
+</body>
+</html>
