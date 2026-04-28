@@ -27,7 +27,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     public Optional<User> findUserByName(String username) {
-        return userRepository.findUserByName(username);
+        return userRepository.findUserByFirstName(username);
     }
 
     @Override
@@ -68,7 +68,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     public boolean isNameUnique(String name, Integer userId) {
-        Optional<User> existingUser = userRepository.findUserByName(name);
+        Optional<User> existingUser = userRepository.findUserByFirstName(name);
         if (existingUser.isEmpty()) {
             return true; // Имя свободно
         }

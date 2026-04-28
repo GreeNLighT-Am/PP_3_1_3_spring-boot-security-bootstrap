@@ -44,10 +44,15 @@ public class User implements UserDetails {
     @Column(name = "id")
     private int id;
 
-    @Column(name = "name")
-    @NotEmpty(message = "Имя не должно быть пустым")
-    @Size(min = 2, max = 30, message = "Длина имени должна быть от 2-х до 30-ти знаков")
-    private String name;
+    @Column(name = "firstName")
+    @NotEmpty(message = "firstName не должно быть пустым")
+    @Size(min = 2, max = 30, message = "Длина firstName должна быть от 2-х до 30-ти знаков")
+    private String firstName;
+
+    @Column(name = "lastName")
+    @NotEmpty(message = "lastName не должно быть пустым")
+    @Size(min = 2, max = 30, message = "Длина lastName должна быть от 2-х до 30-ти знаков")
+    private String lastName;
 
     @Column(name = "age")
     @Min(value = 1, message = "Возраст должен быть больше 0")
@@ -84,7 +89,7 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return this.name;
+        return this.firstName;
     }
 
     @Override

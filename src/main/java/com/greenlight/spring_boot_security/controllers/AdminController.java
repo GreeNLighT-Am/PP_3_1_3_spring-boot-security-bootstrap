@@ -72,7 +72,7 @@ public class AdminController {
                           Model model) {
 
         // Проверка уникальности имени пользователя
-        if (!userService.isNameUnique(user.getName(), user.getId())) {
+        if (!userService.isNameUnique(user.getFirstName(), user.getId())) {
             userBindingResult.rejectValue(
                     "name",
                     "error.user",
@@ -104,7 +104,7 @@ public class AdminController {
 
         userService.addUser(user);
         redirectAttributes.addFlashAttribute("successMessage",
-                String.format("Пользователь %s успешно создан.", user.getName()));
+                String.format("Пользователь %s успешно создан.", user.getFirstName()));
         return "redirect:/admin";
     }
 
@@ -134,7 +134,7 @@ public class AdminController {
                              RedirectAttributes redirectAttributes, Model model) {
 
         // Проверка уникальности имени пользователя
-        if (!userService.isNameUnique(user.getName(), user.getId())) {
+        if (!userService.isNameUnique(user.getFirstName(), user.getId())) {
             userBindingResult.rejectValue(
                     "name",
                     "error.user",
@@ -179,7 +179,7 @@ public class AdminController {
 
         Optional<User> userOpt = userService.showUserById(id);
         if (userOpt.isPresent()) {
-            String userName = userOpt.get().getName();
+            String userName = userOpt.get().getFirstName();
             userService.deleteUserById(id);
             redirectAttributes.addFlashAttribute("successMessage", String.format("Пользователь %s успешно удалён.", userName));
         } else {
