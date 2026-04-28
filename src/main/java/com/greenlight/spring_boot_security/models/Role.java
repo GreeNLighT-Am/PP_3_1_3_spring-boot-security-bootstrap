@@ -15,6 +15,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotEmpty;
 import java.util.Collection;
+import java.util.List;
 
 @Data
 @Entity
@@ -35,7 +36,7 @@ public class Role implements GrantedAuthority {
 
     // Двунаправленная связь с User
     @ManyToMany(mappedBy = "roles")
-    private Collection<User> users;
+    private List<User> users;
 
     @Override
     public String getAuthority() {

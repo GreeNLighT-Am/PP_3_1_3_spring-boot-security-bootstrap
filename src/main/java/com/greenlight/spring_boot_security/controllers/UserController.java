@@ -18,11 +18,11 @@ public class UserController {
 
     @GetMapping("/user")
     public String userPage(Principal principal, Model model) {
-        Optional<User> autorisedUser = userService.findUserByName(principal.getName());
-        if (autorisedUser.isPresent()) {
-            model.addAttribute("user", autorisedUser.get());
+        Optional<User> authorisedUser = userService.findUserByName(principal.getName());
+        if (authorisedUser.isPresent()) {
+            model.addAttribute("authorisedUser", authorisedUser.get());
         }
-        return "user";
+        return "user_page";
     }
 
 }

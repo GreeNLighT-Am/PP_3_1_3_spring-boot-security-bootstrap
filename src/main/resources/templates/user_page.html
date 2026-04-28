@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
@@ -16,16 +16,23 @@
 
 
 <!--Навбар-->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="height: 45px;">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark px-3" style="height: 45px;">
 
-    <div class="d-flex align-items-center justify-content-start w-100 ps-3">
-        <span class="text-white me-1 fs-5 fw-bold">user@mail.ru</span>
+    <div class="d-flex align-items-center justify-content-start w-100">
+        <span class="text-white me-1 fs-5 fw-bold" th:text="${authorisedUser.email}"></span>
         <span class="text-white me-1 fs-5">with roles:</span>
-        <span class="text-white fs-5">USER</span>
+        <span class="text-white fs-5" th:each="role, iter : ${authorisedUser.roles}"
+              th:text="${iter.index > 0 ? ', ' : ''} + ${#strings.replace(role.role, 'ROLE_', '')}"></span>
     </div>
 
-    <div class="navbar-nav d-flex pe-2">
-        <a class="nav-link" href="#">Logout</a>
+    <div class="navbar-nav d-flex">
+        <form th:action="@{/logout}" method="post" style="display: inline;">
+            <button type="submit"
+                    class="nav-link"
+                    style="background: none; border: none; padding: 0; margin: 0; cursor: pointer;">
+                Logout
+            </button>
+        </form>
     </div>
 
 </nav>
@@ -41,9 +48,11 @@
 <div class="container-fluid vh-100">
     <div class="row vh-100">
 
-        <div class="col-2 d-flex flex-column p-0 mb-auto"><!-- Левая колонка (меню) -->
-            <div class="flex-grow-1 d-flex flex-column ">
-                <a class="nav-link bg-primary text-white flex-fill text-start rounded mt-3">User</a>
+        <div class="col-2 d-flex flex-column pt-3 px-0 mb-auto"><!-- Левая колонка (меню) -->
+            <div class="flex-grow-1 d-flex flex-column">
+                <a th:if="${#request.userPrincipal != null and #request.isUserInRole('ADMIN')}"
+                   class="nav-link flex-fill text-start rounded" href="/admin">Admin</a>
+                <a class="nav-link bg-primary text-white flex-fill text-start rounded">User</a>
             </div>
             <!-- Здесь можно добавить нижний блок (например, футер для меню) -->
         </div>
@@ -53,44 +62,34 @@
             <!-- Тут ваш текущий контент (табы, таблица и т. д.) -->
             <h1 class="mb-3 mt-3">User information-page</h1>
 
-            <!--Карточка All users-->
+            <!--Карточка About user-->
             <div class="card">
                 <h5 class="card-header d-flex align-items-center">About user</h5>
                 <div class="card-body">
 
-                    <!--Содержимое карточки All users-->
+                    <!--Содержимое карточки About user-->
 
-                    <table class="table table-striped border-top">
+                    <table class="table card-body table-striped border-top">
                         <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>First name</th>
-                            <th>Last name</th>
-                            <th>Age</th>
+                            <th>id</th>
+                            <th>Имя</th>
+                            <th>Возраст</th>
                             <th>Email</th>
-                            <th>Role</th>
+                            <th>Роли</th>
                         </tr>
                         </thead>
                         <tbody>
                         <tr>
-                            <td>1</td>
-                            <td>First name</td>
-                            <td>Last name</td>
-                            <td>@Age</td>
-                            <td>Email</td>
-                            <td>Role</td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>Jacob</td>
-                            <td>Thornton</td>
-                            <td>@fat</td>
-                        </tr>
-                        <tr>
-                            <td>3</td>
-                            <td>Larry the Bird</td>
-                            <td>Bird</td>
-                            <td>@twitter</td>
+                            <td th:text="${authorisedUser.id}"></td>
+                            <td th:text="${authorisedUser.name}"></td>
+                            <td th:text="${authorisedUser.age}"></td>
+                            <td th:text="${authorisedUser.email}"></td>
+                            <td>
+    <span th:each="role, iter : ${authorisedUser.roles}"
+          th:text="${iter.index > 0 ? ', ' : ''} + ${#strings.replace(role.role, 'ROLE_', '')}">
+    </span>
+                            </td>
                         </tr>
                         </tbody>
                     </table>

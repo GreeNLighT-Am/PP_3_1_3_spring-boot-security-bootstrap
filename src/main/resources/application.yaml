@@ -3,7 +3,7 @@ spring:
     name: springboot
 
   datasource:
-    url: jdbc:mysql://localhost:3306/spring_boot_security?allowPublicKeyRetrieval=true&useSSL=false&verifyServerCertificate=false&useSSL=false&requireSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC
+    url: jdbc:mysql://localhost:3306/spring_boot_security_bootstrap?allowPublicKeyRetrieval=true&useSSL=false&verifyServerCertificate=false&useSSL=false&requireSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC
     username: root
     password: root
 

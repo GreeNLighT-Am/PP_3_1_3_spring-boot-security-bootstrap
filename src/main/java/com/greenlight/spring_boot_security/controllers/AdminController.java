@@ -13,6 +13,7 @@ import com.greenlight.spring_boot_security.models.User;
 import com.greenlight.spring_boot_security.repositories.RoleRepository;
 import com.greenlight.spring_boot_security.service.UserService;
 
+import java.security.Principal;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -28,9 +29,14 @@ public class AdminController {
     private final RoleRepository roleRepository;
 
     @GetMapping()
-    public String showUsers(Model model) {
+    public String showUsers(Principal principal, Model model) {
 
-        model.addAttribute("users", userService.showAllUsers());
+        Optional<User> authorisedUser = userService.findUserByName(principal.getName());
+        if (authorisedUser.isPresent()) {
+            model.addAttribute("authorisedUser", authorisedUser.get());
+        }
+
+        model.addAttribute("allUsers", userService.showAllUsers());
 
         return "users/users";
     }
@@ -90,7 +96,7 @@ public class AdminController {
 
         // Обработка выбора ролей
         if (roleIds != null && !roleIds.isEmpty()) {
-            Collection<Role> selectedRoles = roleRepository.findByIdIn(roleIds);
+            List<Role> selectedRoles = roleRepository.findByIdIn(roleIds);
             user.setRoles(selectedRoles);
         } else {
             user.setRoles(Collections.emptyList());
@@ -152,7 +158,7 @@ public class AdminController {
 
         // Обработка выбора ролей
         if (roleIds != null && !roleIds.isEmpty()) {
-            Collection<Role> selectedRoles = roleRepository.findByIdIn(roleIds);
+            List<Role> selectedRoles = roleRepository.findByIdIn(roleIds);
             user.setRoles(selectedRoles);
         } else {
             user.setRoles(Collections.emptyList());

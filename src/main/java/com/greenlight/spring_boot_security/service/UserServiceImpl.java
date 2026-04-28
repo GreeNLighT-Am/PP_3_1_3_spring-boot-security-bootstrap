@@ -17,7 +17,7 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public void addUser(User user) {
         // Хэшируем пароль перед сохранением
         user.setPassword(passwordEncoder.encode(user.getPassword()));
