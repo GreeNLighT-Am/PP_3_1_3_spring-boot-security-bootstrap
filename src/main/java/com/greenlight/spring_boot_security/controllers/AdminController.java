@@ -29,7 +29,7 @@ public class AdminController {
     private final RoleRepository roleRepository;
 
     @GetMapping()
-    public String showUsers(Principal principal, Model model) {
+    public String showUsers(Principal principal, Model model, @ModelAttribute("newUser") User user) {
 
         Optional<User> authorisedUser = userService.findUserByName(principal.getName());
         if (authorisedUser.isPresent()) {
@@ -37,6 +37,8 @@ public class AdminController {
         }
 
         model.addAttribute("allUsers", userService.showAllUsers());
+
+        model.addAttribute("allRoles", roleRepository.findAll());
 
         return "users/users";
     }
@@ -59,13 +61,13 @@ public class AdminController {
     }
 
     @GetMapping("/new")
-    public String newUser(@ModelAttribute("user") User user, Model model) {
+    public String newUser(@ModelAttribute("newUser") User user, Model model) {
         model.addAttribute("allRoles", roleRepository.findAll());
         return "users/new";
     }
 
     @PostMapping("/add")
-    public String addUser(@ModelAttribute("user") @Valid User user,
+    public String addUser(@ModelAttribute("newUser") @Valid User user,
                           BindingResult userBindingResult,
                           @RequestParam(value = "roles", required = false) List<Integer> roleIds,
                           RedirectAttributes redirectAttributes,

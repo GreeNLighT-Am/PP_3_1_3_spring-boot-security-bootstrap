@@ -9,10 +9,10 @@
 <section th:fragment="section">
 
     <!-- Контент страницы -->
-    <form th:method="POST" th:action="@{/admin/add}" th:object="${user}">
-        <label for="name">Введите имя: </label>
-        <input type="text" th:field="*{name}" id="name"/>
-        <div style="color: red" th:if="${#fields.hasErrors('name')}" th:errors="*{name}">Error for name</div>
+    <form th:method="POST" th:action="@{/admin/add}" th:object="${newUser}">
+        <label for="firstName">Введите имя: </label>
+        <input type="text" th:field="*{firstName}" id="firstName"/>
+        <div style="color: red" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}">Error for firstName</div>
         <br/>
         <label for="age">Введите возраст: </label>
         <input type="text" th:field="*{age}" id="age"/>
@@ -34,7 +34,7 @@
                    th:field="*{roles}"
                    th:value="${role.id}"
                    th:id="${'role_' + role.id}"
-                   th:checked="${user.roles?.contains(role)}"/>
+                   th:checked="${newUser.roles?.contains(role)}"/>
             <label th:for="${'role_' + role.id}" th:text="${role.role}"></label>
         </div>
 

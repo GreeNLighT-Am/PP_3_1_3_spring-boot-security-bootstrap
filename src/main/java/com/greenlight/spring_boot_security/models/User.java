@@ -44,12 +44,12 @@ public class User implements UserDetails {
     @Column(name = "id")
     private int id;
 
-    @Column(name = "firstName")
+    @Column(name = "first_name")
     @NotEmpty(message = "firstName не должно быть пустым")
     @Size(min = 2, max = 30, message = "Длина firstName должна быть от 2-х до 30-ти знаков")
     private String firstName;
 
-    @Column(name = "lastName")
+    @Column(name = "last_name")
     @NotEmpty(message = "lastName не должно быть пустым")
     @Size(min = 2, max = 30, message = "Длина lastName должна быть от 2-х до 30-ти знаков")
     private String lastName;
@@ -68,7 +68,6 @@ public class User implements UserDetails {
     @Size(min = 4, message = "Длина пароля должна быть от 4-х знаков")
     private String password;
 
-    @OrderBy("role ASC")
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id"),
