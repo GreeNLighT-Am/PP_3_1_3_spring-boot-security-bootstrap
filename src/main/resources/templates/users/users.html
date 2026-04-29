@@ -30,8 +30,6 @@
 <body>
 
 
-
-
 <div style="display: none;">
     openNewUserTab = [[${openNewUserTab}]]
 </div>
@@ -276,37 +274,51 @@
             </div>
             <div class="modal-body text-center fw-bold">
                 <form id="editUserForm" class="mx-auto w-50">
+
                     <div class="mb-3">
                         <label for="editId" class="form-label mb-0">ID</label>
                         <input type="text" class="form-control py-1" id="editId" disabled> <!-- Неизменяемое поле ID -->
                     </div>
+
                     <div class="mb-3">
                         <label for="editFirstName" class="form-label mb-0">First name</label>
                         <input type="text" class="form-control py-1" id="editFirstName" required>
+                        <div id="errorFirstName" class="text-danger small mt-1"></div>
                     </div>
+
                     <div class="mb-3">
                         <label for="editLastName" class="form-label mb-0">Last name</label>
                         <input type="text" class="form-control py-1" id="editLastName" required>
+                        <div id="errorLastName" class="text-danger small mt-1"></div>
                     </div>
+
                     <div class="mb-3">
                         <label for="editAge" class="form-label mb-0">Age</label>
                         <input type="number" class="form-control py-1" id="editAge" required>
+                        <div id="errorAge" class="text-danger small mt-1"></div>
                     </div>
+
                     <div class="mb-3">
                         <label for="editEmail" class="form-label mb-0">Email</label>
                         <input type="email" class="form-control py-1" id="editEmail" required>
+                        <div id="errorEmail" class="text-danger small mt-1"></div>
                     </div>
+
                     <div class="mb-3">
                         <label for="editPassword" class="form-label mb-0">Password</label>
                         <input type="password" class="form-control py-1" id="editPassword"
                                placeholder="Оставить пустым, чтобы не менять">
+                        <div id="errorPassword" class="text-danger small mt-1"></div>
                     </div>
+
                     <div class="mb-3">
                         <label for="editRole" class="form-label mb-0">Role</label>
                         <select class="form-select py-1" id="editRole" required multiple
                                 size="2">
                         </select>
+                        <div id="errorRoles" class="text-danger small mt-1"></div>
                     </div>
+
                 </form>
             </div>
             <div class="modal-footer">
@@ -316,29 +328,6 @@
         </div>
     </div>
 </div>
-
-
-<!--<script>-->
-
-<!--    document.addEventListener("DOMContentLoaded", function () {-->
-<!--        const openNewUserTab = /*[[${openNewUserTab}]]*/ false;-->
-<!--        console.log("openNewUserTab:", openNewUserTab); // ← Должен вывести true-->
-
-<!--        const triggerEl = document.getElementById('nav-profile-tab');-->
-<!--        console.log("triggerEl:", triggerEl); // ← Должен быть объект HTMLAnchorElement-->
-
-<!--        if (openNewUserTab && triggerEl) {-->
-<!--            const tab = new bootstrap.Tab(triggerEl);-->
-<!--            tab.show();-->
-<!--            console.log("Вкладка активирована");-->
-<!--        } else {-->
-<!--            console.error("Ошибка: openNewUserTab=", openNewUserTab, ", triggerEl=", triggerEl);-->
-<!--        }-->
-<!--    });-->
-
-
-<!--</script>-->
-
 
 <!--Этот скрипт безопасно передаёт данные с сервера (из переменной allRoles) в клиентский JavaScript как константу allRolesData-->
 <script th:inline="javascript">
@@ -384,6 +373,10 @@
 
                 roleSelect.appendChild(option);
             });
+
+            // Очистка предыдущих ошибок
+            document.querySelectorAll('.text-danger[id^="error"]').forEach(el => el.textContent = '');
+
         });
     });
 
@@ -403,6 +396,9 @@
             roles: Array.from(document.getElementById('editRole').selectedOptions).map(opt => parseInt(opt.value))
         };
 
+        // Очистка ошибок
+        document.querySelectorAll('.text-danger[id^="error"]').forEach(el => el.textContent = '');
+
         // Собираем данные формы в объект formData
         const params = new URLSearchParams();
         params.append('id', formData.id);
@@ -421,19 +417,29 @@
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest', // ← Чтобы сервер знал, что это AJAX
                 'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]')?.getAttribute('content')
             },
             body: params.toString()
         })
             .then(response => {
-                if (response.redirected) {
-                    window.location.href = response.url;
+                if (response.ok) {
+                    // Успех — обновляем страницу
                     modal.hide();
-                } else {
-                    response.text().then(text => {
-                        console.error('Ошибка ответа:', text);
-                        alert('Ошибка при обновлении пользователя');
+                    location.reload();
+                } else if (response.status === 400) {
+                    // Ошибки валидации
+                    response.json().then(errors => {
+                        console.log("Ошибки:", errors);
+                        for (const [field, message] of Object.entries(errors)) {
+                            const errorElement = document.getElementById('error' + field.charAt(0).toUpperCase() + field.slice(1));
+                            if (errorElement) {
+                                errorElement.textContent = message;
+                            }
+                        }
                     });
+                } else {
+                    alert('Неизвестная ошибка');
                 }
             })
             .catch(err => {
@@ -563,7 +569,7 @@
 
 </script>
 
-
+<!--Скрипт автоматического открытия вкладки New user при ошибках валидации в форме создания пользователя-->
 <script th:inline="javascript">
     document.addEventListener("DOMContentLoaded", function () {
         // Получаем значение из модели Thymeleaf (по умолчанию false)

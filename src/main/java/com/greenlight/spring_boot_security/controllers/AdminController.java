@@ -1,15 +1,16 @@
 package com.greenlight.spring_boot_security.controllers;
 
-import javax.validation.Valid;
-
 import com.greenlight.spring_boot_security.validation.OnCreate;
 import com.greenlight.spring_boot_security.validation.OnUpdate;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.greenlight.spring_boot_security.models.Role;
 import com.greenlight.spring_boot_security.models.User;
@@ -18,7 +19,9 @@ import com.greenlight.spring_boot_security.service.UserService;
 
 import java.security.Principal;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 
@@ -29,6 +32,13 @@ public class AdminController {
 
     private final UserService userService;
     private final RoleRepository roleRepository;
+
+    private boolean isAjaxRequest() {
+        String header = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
+                .getRequest().getHeader("X-Requested-With");
+        return "XMLHttpRequest".equals(header);
+    }
+
 
     @GetMapping()
     public String showUsers(Principal principal, Model model, @ModelAttribute("newUser") User user) {
@@ -140,36 +150,37 @@ public class AdminController {
     }
 
     @PostMapping("/update")
-    public String updateUser(@ModelAttribute("user") @Validated(OnUpdate.class) User user,
-                             BindingResult userBindingResult,
-                             @RequestParam(value = "roles", required = false) List<Integer> roleIds,
-                             RedirectAttributes redirectAttributes, Model model) {
+    public ResponseEntity<?> updateUser(
+            @ModelAttribute("user") @Validated(OnUpdate.class) User user,
+            BindingResult bindingResult,
+            @RequestParam(value = "roles", required = false) List<Integer> roleIds,
+            RedirectAttributes redirectAttributes,
+            Model model) {
 
-
-        // Проверка уникальности имени пользователя
+        // Проверка уникальности
         if (!userService.isNameUnique(user.getFirstName(), user.getId())) {
-            userBindingResult.rejectValue(
-                    "firstName",
-                    "error.user",
-                    "Пользователь с таким именем уже существует"
-            );
+            bindingResult.rejectValue("firstName", "error.user", "Пользователь с таким именем уже существует");
         }
-
-        // Проверка уникальности email пользователя
         if (!userService.isEmailUnique(user.getEmail(), user.getId())) {
-            userBindingResult.rejectValue(
-                    "email",
-                    "error.email",
-                    "Пользователь с таким email уже существует"
-            );
+            bindingResult.rejectValue("email", "error.email", "Пользователь с таким email уже существует");
         }
 
-        if (userBindingResult.hasErrors()) {
+        if (bindingResult.hasErrors()) {
+            // Если это AJAX-запрос — возвращаем JSON с ошибками
+            if (isAjaxRequest()) {
+                Map<String, String> errors = new HashMap<>();
+                bindingResult.getFieldErrors().forEach(error ->
+                        errors.put(error.getField(), error.getDefaultMessage())
+                );
+                return ResponseEntity.badRequest().body(errors);
+            }
+
+            // Иначе — возвращаем HTML (как раньше)
             model.addAttribute("allRoles", roleRepository.findAll());
-            return "users/edit";
+            return ResponseEntity.status(200).body("users/edit");
         }
 
-        // Обработка выбора ролей
+        // Обработка ролей
         if (roleIds != null && !roleIds.isEmpty()) {
             List<Role> selectedRoles = roleRepository.findByIdIn(roleIds);
             user.setRoles(selectedRoles);
@@ -178,10 +189,15 @@ public class AdminController {
         }
 
         userService.updateUser(user);
-        redirectAttributes.addFlashAttribute("successMessage", "Пользователь успешно обновлён.");
 
-        return "redirect:/admin";
+        if (isAjaxRequest()) {
+            return ResponseEntity.ok().build(); // Успешно
+        }
+
+        redirectAttributes.addFlashAttribute("successMessage", "Пользователь успешно обновлён.");
+        return ResponseEntity.ok().body("redirect:/admin");
     }
+
 
     @PostMapping("/delete")
     public String deleteUser(@RequestParam(value = "id", required = false) Integer id, RedirectAttributes redirectAttributes) {
