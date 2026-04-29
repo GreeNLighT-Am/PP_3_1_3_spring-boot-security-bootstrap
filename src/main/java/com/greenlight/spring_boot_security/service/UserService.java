@@ -9,7 +9,7 @@ public interface UserService {
 
     void addUser(User user);
 
-    Optional<User> findUserByName(String username);
+    Optional<User> findUserByFirstName(String username);
 
     Optional<User> findUserByEmail(String email);
 

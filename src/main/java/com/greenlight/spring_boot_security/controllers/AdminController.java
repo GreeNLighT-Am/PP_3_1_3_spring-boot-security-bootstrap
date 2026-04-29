@@ -14,7 +14,6 @@ import com.greenlight.spring_boot_security.repositories.RoleRepository;
 import com.greenlight.spring_boot_security.service.UserService;
 
 import java.security.Principal;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -31,7 +30,7 @@ public class AdminController {
     @GetMapping()
     public String showUsers(Principal principal, Model model, @ModelAttribute("newUser") User user) {
 
-        Optional<User> authorisedUser = userService.findUserByName(principal.getName());
+        Optional<User> authorisedUser = userService.findUserByFirstName(principal.getName());
         if (authorisedUser.isPresent()) {
             model.addAttribute("authorisedUser", authorisedUser.get());
         }
@@ -71,12 +70,18 @@ public class AdminController {
                           BindingResult userBindingResult,
                           @RequestParam(value = "roles", required = false) List<Integer> roleIds,
                           RedirectAttributes redirectAttributes,
-                          Model model) {
+                          Model model, Principal principal) {
+
+        Optional<User> authorisedUser = userService.findUserByFirstName(principal.getName());
+        if (authorisedUser.isPresent()) {
+            model.addAttribute("authorisedUser", authorisedUser.get());
+        }
+
 
         // Проверка уникальности имени пользователя
         if (!userService.isNameUnique(user.getFirstName(), user.getId())) {
             userBindingResult.rejectValue(
-                    "name",
+                    "firstName",
                     "error.user",
                     "Пользователь с таким именем уже существует"
             );
@@ -92,8 +97,10 @@ public class AdminController {
         }
 
         if (userBindingResult.hasErrors()) {
+            model.addAttribute("allUsers", userService.showAllUsers()); // ← важно!
             model.addAttribute("allRoles", roleRepository.findAll());
-            return "users/new";
+            model.addAttribute("openNewUserTab", true); // ← ключевой флаг!
+            return "users/users";
         }
 
         // Обработка выбора ролей
@@ -133,12 +140,13 @@ public class AdminController {
     public String updateUser(@ModelAttribute("user") @Valid User user,
                              BindingResult userBindingResult,
                              @RequestParam(value = "roles", required = false) List<Integer> roleIds,
-                             RedirectAttributes redirectAttributes, Model model) {
+                             RedirectAttributes redirectAttributes, Model model, Principal principal) {
+
 
         // Проверка уникальности имени пользователя
         if (!userService.isNameUnique(user.getFirstName(), user.getId())) {
             userBindingResult.rejectValue(
-                    "name",
+                    "firstName",
                     "error.user",
                     "Пользователь с таким именем уже существует"
             );

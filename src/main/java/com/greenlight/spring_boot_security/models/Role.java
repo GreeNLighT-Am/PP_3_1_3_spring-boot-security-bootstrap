@@ -1,5 +1,6 @@
 package com.greenlight.spring_boot_security.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,8 +14,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
-import javax.validation.constraints.NotEmpty;
-import java.util.Collection;
 import java.util.List;
 
 @Data
@@ -30,12 +29,12 @@ public class Role implements GrantedAuthority {
     @Column(name = "id")
     private int id;
 
-    @Column(unique = true)
-    @NotEmpty(message = "Название роли не может быть пустым")
+    @Column(name = "role")
     private String role;
 
     // Двунаправленная связь с User
     @ManyToMany(mappedBy = "roles")
+    @JsonIgnore
     private List<User> users;
 
     @Override

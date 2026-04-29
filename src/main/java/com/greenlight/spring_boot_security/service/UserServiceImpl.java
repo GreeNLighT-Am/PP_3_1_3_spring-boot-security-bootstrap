@@ -26,7 +26,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<User> findUserByName(String username) {
+    public Optional<User> findUserByFirstName(String username) {
         return userRepository.findUserByFirstName(username);
     }
 

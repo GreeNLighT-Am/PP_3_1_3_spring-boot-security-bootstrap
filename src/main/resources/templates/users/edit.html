@@ -12,9 +12,13 @@
 
     <form th:method="POST" th:action="@{/admin/update}" th:object="${user}">
         <input type="hidden" th:field="*{id}"/>
-        <label for="name">Введите имя: </label>
-        <input type="text" th:field="*{name}" id="name"/>
-        <div style="color: red" th:if="${#fields.hasErrors('name')}" th:errors="*{name}">Error for name</div>
+        <label for="firstName">Введите firstName: </label>
+        <input type="text" th:field="*{firstName}" id="firstName"/>
+        <div style="color: red" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}">Error for firstName</div>
+        <br/>
+        <label for="lastName">Введите lastName: </label>
+        <input type="text" th:field="*{lastName}" id="lastName"/>
+        <div style="color: red" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}">Error for lastName</div>
         <br/>
         <label for="age">Введите возраст: </label>
         <input type="text" th:field="*{age}" id="age"/>
