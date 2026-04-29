@@ -51,12 +51,18 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void updateUser(User user) {
-//        // Хэшируем пароль, если он был изменён
         Optional<User> existingUser = userRepository.showUserById(user.getId());
-        if (existingUser.isPresent() && user.getPassword() != null && !user.getPassword().equals(existingUser.get().getPassword())) {
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        if (existingUser.isPresent()) {
+            User dbUser = existingUser.get();
+            // Хэшируем пароль только если он был изменён
+            if (user.getPassword() != null && !user.getPassword().isEmpty() && !user.getPassword().equals(dbUser.getPassword())) {
+                user.setPassword(passwordEncoder.encode(user.getPassword()));
+            } else {
+                // Сохраняем старый пароль
+                user.setPassword(dbUser.getPassword());
+            }
+            userRepository.save(user);
         }
-        userRepository.save(user);
     }
 
     @Override

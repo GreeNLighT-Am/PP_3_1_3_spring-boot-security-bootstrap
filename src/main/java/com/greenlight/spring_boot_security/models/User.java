@@ -10,13 +10,15 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import com.greenlight.spring_boot_security.validation.OnCreate;
+import com.greenlight.spring_boot_security.validation.OnUpdate;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -45,27 +47,28 @@ public class User implements UserDetails {
     private int id;
 
     @Column(name = "first_name")
-    @NotEmpty(message = "firstName не должно быть пустым")
-    @Size(min = 2, max = 30, message = "Длина firstName должна быть от 2-х до 30-ти знаков")
+    @NotEmpty(message = "firstName не должно быть пустым", groups = {OnCreate.class, OnUpdate.class})
+    @Size(min = 2, max = 30, message = "Длина firstName должна быть от 2-х до 30-ти знаков", groups = {OnCreate.class, OnUpdate.class})
     private String firstName;
 
     @Column(name = "last_name")
-    @NotEmpty(message = "lastName не должно быть пустым")
-    @Size(min = 2, max = 30, message = "Длина lastName должна быть от 2-х до 30-ти знаков")
+    @NotEmpty(message = "lastName не должно быть пустым", groups = {OnCreate.class, OnUpdate.class})
+    @Size(min = 2, max = 30, message = "Длина lastName должна быть от 2-х до 30-ти знаков", groups = {OnCreate.class, OnUpdate.class})
     private String lastName;
 
     @Column(name = "age")
-    @Min(value = 1, message = "Возраст должен быть больше 0")
+    @NotNull(message = "Возраст не должен быть пустым", groups = {OnCreate.class, OnUpdate.class})
+    @Min(value = 1, message = "Возраст должен быть больше 0", groups = {OnCreate.class, OnUpdate.class})
     private Integer age;
 
     @Column(name = "email")
-    @NotEmpty(message = "Email не должен быть пустым")
-    @Email(message = "Email должен быть валидным")
+    @NotEmpty(message = "Email не должен быть пустым", groups = {OnCreate.class, OnUpdate.class})
+    @Email(message = "Email должен быть валидным", groups = {OnCreate.class, OnUpdate.class})
     private String email;
 
     @Column
-    @NotEmpty(message = "Пароль не должен быть пустым")
-    @Size(min = 4, message = "Длина пароля должна быть от 4-х знаков")
+    @NotEmpty(message = "Пароль не должен быть пустым", groups = OnCreate.class)
+    @Size(min = 4, message = "Длина пароля должна быть от 4-х знаков", groups = {OnCreate.class, OnUpdate.class})
     private String password;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
