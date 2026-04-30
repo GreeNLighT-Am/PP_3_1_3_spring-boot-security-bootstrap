@@ -11,20 +11,26 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Integer> {
-    Optional<User> findUserByFirstName(String username);
+    Optional<User> findUserById(int id);
 
     Optional<User> findUserByEmail(String email);
 
-    @Query("SELECT u FROM User u LEFT JOIN FETCH u.roles WHERE u.firstName = :username")
-    Optional<User> findUserWithRolesByName(@Param("username") String username);
-
-    // Optional<User> findUserByIdWithRoles(int id);
-    // Optional<User> findByIdFetchRoles(int id);
-    @Query("SELECT u FROM User u LEFT JOIN FETCH u.roles WHERE u.id = :id")
-    Optional<User> showUserById(@Param("id") int id);
+    @Query("SELECT u FROM User u LEFT JOIN FETCH u.roles WHERE u.email = :email")
+    Optional<User> findUserWithRolesByEmail(@Param("email") String email);
 
     // List<User> findAllDistinctFetchRoles();
     @Query("SELECT DISTINCT u FROM User u LEFT JOIN FETCH u.roles")
     List<User> showAllUsers();
+
+    //    @Query("SELECT u FROM User u LEFT JOIN FETCH u.roles WHERE u.firstName = :username")
+    //    Optional<User> findUserWithRolesByFirstName(@Param("username") String username);
+
+    //    Optional<User> findUserByFirstName(String username);
+
+    //    @Query("SELECT u FROM User u LEFT JOIN FETCH u.roles WHERE u.id = :id")
+    //    Optional<User> showUserById(@Param("id") int id);
+
+    // Optional<User> findUserByIdWithRoles(int id);
+    // Optional<User> findByIdFetchRoles(int id);
 
 }

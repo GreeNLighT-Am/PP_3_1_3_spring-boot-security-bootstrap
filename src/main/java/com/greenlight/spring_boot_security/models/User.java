@@ -1,5 +1,8 @@
 package com.greenlight.spring_boot_security.models;
 
+import com.greenlight.spring_boot_security.validation.OnCreate;
+import com.greenlight.spring_boot_security.validation.OnUpdate;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -17,8 +20,6 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import com.greenlight.spring_boot_security.validation.OnCreate;
-import com.greenlight.spring_boot_security.validation.OnUpdate;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -91,7 +92,7 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return this.firstName;
+        return this.email;
     }
 
     @Override

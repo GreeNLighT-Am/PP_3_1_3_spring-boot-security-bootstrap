@@ -41,113 +41,73 @@ public class AdminController {
 
 
     @GetMapping()
-    public String showUsers(Principal principal, Model model, @ModelAttribute("newUser") User user) {
+    public String adminPanel(Principal principal, Model model, @ModelAttribute("newUser") User newUser) {
+        List<User> allUsers = userService.showAllUsers();
+        model.addAttribute("allUsers", allUsers);
 
-        Optional<User> authorisedUser = userService.findUserByFirstName(principal.getName());
+        // Ищем авторизованного пользователя в уже загруженном списке
+        Optional<User> authorisedUser = allUsers.stream()
+                .filter(u -> u.getEmail().equals(principal.getName()))
+                .findFirst();
         if (authorisedUser.isPresent()) {
             model.addAttribute("authorisedUser", authorisedUser.get());
         }
 
-        model.addAttribute("allUsers", userService.showAllUsers());
-
         model.addAttribute("allRoles", roleRepository.findAll());
-
-        return "users/users";
+        return "admin/admin_page";
     }
 
-    @GetMapping("/user")
-    public String showUser(@RequestParam(value = "id", required = false) Integer id, Model model) {
-        if (id == null || id <= 0) {
-            model.addAttribute("errorMessage", "Ошибка отображения пользователя: значение id не может быть пустым, 0 или отрицательным.");
-            return "users/users";
-        }
-
-        Optional<User> userOpt = userService.showUserById(id);
-        if (userOpt.isPresent()) {
-            model.addAttribute("user", userOpt.get());
-            return "users/user";
-        } else {
-            model.addAttribute("errorMessage", String.format("Ошибка отображения пользователя: пользователь с ID %d не найден.", id));
-            return "users/users";
-        }
-    }
-
-    @GetMapping("/new")
-    public String newUser(@ModelAttribute("newUser") User user, Model model) {
-        model.addAttribute("allRoles", roleRepository.findAll());
-        return "users/new";
-    }
 
     @PostMapping("/add")
-    public String addUser(@ModelAttribute("newUser") @Validated(OnCreate.class) User user,
-                          BindingResult userBindingResult,
+    public String addUser(@ModelAttribute("newUser") @Validated(OnCreate.class) User newUser,
+                          BindingResult bindingResult,
                           @RequestParam(value = "roles", required = false) List<Integer> roleIds,
                           RedirectAttributes redirectAttributes,
                           Model model, Principal principal) {
 
-        Optional<User> authorisedUser = userService.findUserByFirstName(principal.getName());
+        List<User> allUsers = userService.showAllUsers();
+        model.addAttribute("allUsers", allUsers);
+
+        // Ищем авторизованного пользователя в уже загруженном списке
+        Optional<User> authorisedUser = allUsers.stream()
+                .filter(u -> u.getEmail().equals(principal.getName()))
+                .findFirst();
         if (authorisedUser.isPresent()) {
             model.addAttribute("authorisedUser", authorisedUser.get());
         }
 
 
         // Проверка уникальности имени пользователя
-        if (!userService.isNameUnique(user.getFirstName(), user.getId())) {
-            userBindingResult.rejectValue(
-                    "firstName",
-                    "error.user",
-                    "Пользователь с таким именем уже существует"
-            );
-        }
+        //        if (!userService.isNameUnique(user.getFirstName(), user.getId())) {
+        //            bindingResult.rejectValue("firstName", "error.user", "Пользователь с таким именем уже существует");
+        //        }
 
         // Проверка уникальности email пользователя
-        if (!userService.isEmailUnique(user.getEmail(), user.getId())) {
-            userBindingResult.rejectValue(
-                    "email",
-                    "error.email",
-                    "Пользователь с таким email уже существует"
-            );
+        if (!userService.isEmailUnique(newUser.getEmail(), newUser.getId())) {
+            bindingResult.rejectValue("email", "error.email", "Пользователь с таким email уже существует");
         }
 
-        if (userBindingResult.hasErrors()) {
+        if (bindingResult.hasErrors()) {
             model.addAttribute("allUsers", userService.showAllUsers()); // ← важно!
             model.addAttribute("allRoles", roleRepository.findAll());
             model.addAttribute("openNewUserTab", true); // ← ключевой флаг!
-            return "users/users";
+            return "admin/admin_page";
         }
 
         // Обработка выбора ролей
         if (roleIds != null && !roleIds.isEmpty()) {
             List<Role> selectedRoles = roleRepository.findByIdIn(roleIds);
-            user.setRoles(selectedRoles);
+            newUser.setRoles(selectedRoles);
         } else {
-            user.setRoles(Collections.emptyList());
+            newUser.setRoles(Collections.emptyList());
         }
 
-        userService.addUser(user);
+        userService.addUser(newUser);
         redirectAttributes.addFlashAttribute("successMessage",
-                String.format("Пользователь %s успешно создан.", user.getFirstName()));
+                String.format("Пользователь %s успешно создан.", newUser.getFirstName()));
         return "redirect:/admin";
     }
 
-    @GetMapping("/edit")
-    public String editUser(@RequestParam(value = "id", required = false) Integer id, Model model) {
-        if (id == null || id <= 0) {
-            model.addAttribute("errorMessage", "Ошибка редактирования пользователя: значение id не может быть пустым, 0 или отрицательным.");
-            return "users/users";
-        }
-
-        Optional<User> userOpt = userService.showUserById(id);
-        if (userOpt.isPresent()) {
-            User user = userOpt.get();
-            model.addAttribute("user", user);
-            model.addAttribute("allRoles", roleRepository.findAll());
-            return "users/edit";
-        } else {
-            model.addAttribute("errorMessage", String.format("Ошибка редактирования пользователя: пользователь с ID %d не найден.", id));
-            return "users/users";
-        }
-    }
 
     @PostMapping("/update")
     public ResponseEntity<?> updateUser(
@@ -157,10 +117,12 @@ public class AdminController {
             RedirectAttributes redirectAttributes,
             Model model) {
 
-        // Проверка уникальности
-        if (!userService.isNameUnique(user.getFirstName(), user.getId())) {
-            bindingResult.rejectValue("firstName", "error.user", "Пользователь с таким именем уже существует");
-        }
+        // Проверка уникальности имени пользователя
+        //        if (!userService.isNameUnique(user.getFirstName(), user.getId())) {
+        //            bindingResult.rejectValue("firstName", "error.user", "Пользователь с таким именем уже существует");
+        //        }
+
+        // Проверка уникальности email пользователя
         if (!userService.isEmailUnique(user.getEmail(), user.getId())) {
             bindingResult.rejectValue("email", "error.email", "Пользователь с таким email уже существует");
         }
@@ -206,7 +168,7 @@ public class AdminController {
             return "redirect:/admin";
         }
 
-        Optional<User> userOpt = userService.showUserById(id);
+        Optional<User> userOpt = userService.findUserById(id);
         if (userOpt.isPresent()) {
             String userName = userOpt.get().getFirstName();
             userService.deleteUserById(id);
@@ -216,5 +178,50 @@ public class AdminController {
         }
         return "redirect:/admin";
     }
+
+
+//    @GetMapping("/user")
+//    public String showUser(@RequestParam(value = "id", required = false) Integer id, Model model) {
+//        if (id == null || id <= 0) {
+//            model.addAttribute("errorMessage", "Ошибка отображения пользователя: значение id не может быть пустым, 0 или отрицательным.");
+//            return "users/users";
+//        }
+//
+//        Optional<User> userOpt = userService.showUserById(id);
+//        if (userOpt.isPresent()) {
+//            model.addAttribute("user", userOpt.get());
+//            return "users/user";
+//        } else {
+//            model.addAttribute("errorMessage", String.format("Ошибка отображения пользователя: пользователь с ID %d не найден.", id));
+//            return "users/users";
+//        }
+//    }
+
+//    @GetMapping("/new")
+//    public String newUser(@ModelAttribute("newUser") User user, Model model) {
+//        model.addAttribute("allRoles", roleRepository.findAll());
+//        return "users/new";
+//    }
+
+
+//    @GetMapping("/edit")
+//    public String editUser(@RequestParam(value = "id", required = false) Integer id, Model model) {
+//        if (id == null || id <= 0) {
+//            model.addAttribute("errorMessage", "Ошибка редактирования пользователя: значение id не может быть пустым, 0 или отрицательным.");
+//            return "users/users";
+//        }
+//
+//        Optional<User> userOpt = userService.showUserById(id);
+//        if (userOpt.isPresent()) {
+//            User user = userOpt.get();
+//            model.addAttribute("user", user);
+//            model.addAttribute("allRoles", roleRepository.findAll());
+//            return "users/edit";
+//        } else {
+//            model.addAttribute("errorMessage", String.format("Ошибка редактирования пользователя: пользователь с ID %d не найден.", id));
+//            return "users/users";
+//        }
+//    }
+
 
 }
