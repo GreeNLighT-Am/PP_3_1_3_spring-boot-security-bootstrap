@@ -4,8 +4,8 @@
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="_csrf" th:content="${_csrf.token}"/>
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -83,11 +83,11 @@
             <!--Табы-->
             <nav class="nav nav-tabs" id="nav-tab" role="tablist">
 
-                <a class="nav-link active" id="nav-users-table-tab" data-bs-toggle="tab" href="#users-table" role="tab"
+                <a class="nav-link active" id="users-table-tab" data-bs-toggle="tab" href="#users-table" role="tab"
                    aria-controls="users-table" aria-selected="true">Users table</a>
 
-                <a class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" href="#nav-profile" role="tab"
-                   aria-controls="nav-profile" aria-selected="false">New user</a>
+                <a class="nav-link" id="new-user-tab" data-bs-toggle="tab" href="#new-user" role="tab"
+                   aria-controls="new-user" aria-selected="false">New user</a>
 
             </nav>
 
@@ -96,7 +96,7 @@
 
                 <!--Таб Users table-->
                 <div class="tab-pane fade show active" id="users-table" role="tabpanel"
-                     aria-labelledby="nav-users-table-tab">
+                     aria-labelledby="users-table-tab">
 
                     <!--Содержимое таба Users table-->
 
@@ -152,7 +152,7 @@
 
 
                 <!--Таб New user-->
-                <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+                <div class="tab-pane fade" id="new-user" role="tabpanel" aria-labelledby="new-user-tab">
 
                     <!--Содержимое таба New user-->
 
@@ -371,9 +371,10 @@
     document.getElementById('saveEdit').addEventListener('click', function () {
         const modalElement = document.getElementById('editUserModal');
         const modal = bootstrap.Modal.getInstance(modalElement);
-        const ageInput = document.getElementById('editAge').value.trim();
-        const age = ageInput ? parseInt(ageInput, 10) : null;
+        const ageInput = document.getElementById('editAge').value.trim();   // Получаем значение из формы age
+        const age = ageInput ? parseInt(ageInput, 10) : null;               // Если значение представлено, парсим, иначе присваиваем null
 
+        // Собираем данные формы в объект formData
         const formData = {
             id: parseInt(document.getElementById('editId').value),
             firstName: document.getElementById('editFirstName').value.trim(),
@@ -387,7 +388,7 @@
         // Очистка предыдущих ошибок и подсветки
         clearValidationErrors();
 
-        // Собираем данные формы в объект formData
+
         const params = new URLSearchParams();
         params.append('id', formData.id);
         params.append('firstName', formData.firstName);
@@ -609,7 +610,7 @@
         console.log("[DEBUG] openNewUserTab:", openNewUserTab);
 
         // Ищем элемент вкладки
-        const triggerEl = document.getElementById('nav-profile-tab');
+        const triggerEl = document.getElementById('new-user-tab');
         console.log("[DEBUG] triggerEl:", triggerEl);
 
         // Проверяем условия активации
@@ -625,7 +626,7 @@
             console.warn(
                 "[WARNING] Активация вкладки пропущена. Причина:",
                 !openNewUserTab ? "openNewUserTab = false/undefined" : "",
-                !triggerEl ? "Элемент #nav-profile-tab не найден" : ""
+                !triggerEl ? "Элемент #new-user-tab не найден" : ""
             );
         }
     });
