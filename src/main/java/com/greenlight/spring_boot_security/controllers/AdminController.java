@@ -44,7 +44,7 @@ public class AdminController {
         }
 
         model.addAttribute("allRoles", roleRepository.findAll());
-        return "admin_page";
+        return "admin_panel";
     }
 
 
