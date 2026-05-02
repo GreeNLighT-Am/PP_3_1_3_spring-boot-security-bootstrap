@@ -163,86 +163,57 @@
 
                             <!--Содержимое карточки Add new user-->
 
-                            <form th:method="POST" th:action="@{/admin/add}" th:object="${newUser}"
-                                  class="container mx-auto text-center fw-bold"
+                            <form id="newUserForm" class="container mx-auto text-center fw-bold"
                                   style="max-width: 400px;">
-                                <!-- Поля формы -->
-
-                                <!-- Поле First name -->
+                                <!-- Поля формы (аналогично модальному окну редактирования) -->
                                 <div class="mb-3">
-                                    <label for="firstName" class="form-label mb-0">First name</label>
-                                    <input type="text" class="form-control py-1" id="firstName"
-                                           name="firstName" th:field="*{firstName}">
-                                    <div th:if="${#fields.hasErrors('firstName')}"
-                                         th:errors="*{firstName}" class="text-danger small">Error for firstName
-                                    </div>
+                                    <label for="newFirstName" class="form-label mb-0">First name</label>
+                                    <input type="text" class="form-control py-1" id="newFirstName" name="firstName"
+                                           required>
+                                    <div id="errorNewFirstName" class="text-danger small"></div>
                                 </div>
 
-                                <!-- Поле Last name -->
                                 <div class="mb-3">
-                                    <label for="lastName" class="form-label mb-0">Last name</label>
-                                    <input type="text" class="form-control py-1" id="lastName"
-                                           name="lastName" th:field="*{lastName}">
-                                    <div th:if="${#fields.hasErrors('lastName')}"
-                                         th:errors="*{lastName}" class="text-danger small">Error for lastName
-                                    </div>
+                                    <label for="newLastName" class="form-label mb-0">Last name</label>
+                                    <input type="text" class="form-control py-1" id="newLastName" name="lastName"
+                                           required>
+                                    <div id="errorNewLastName" class="text-danger small"></div>
                                 </div>
 
-                                <!-- Поле Age -->
                                 <div class="mb-3">
-                                    <label for="age" class="form-label mb-0">Age</label>
-                                    <input type="number" class="form-control py-1" id="age" name="age"
-                                           th:field="*{age}">
-                                    <div th:if="${#fields.hasErrors('age')}" th:errors="*{age}"
-                                         class="text-danger small">Error
-                                        for age
-                                    </div>
+                                    <label for="newAge" class="form-label mb-0">Age</label>
+                                    <input type="number" class="form-control py-1" id="newAge" name="age" required>
+                                    <div id="errorNewAge" class="text-danger small"></div>
                                 </div>
 
-                                <!-- Поле Email -->
                                 <div class="mb-3">
-                                    <label for="email" class="form-label mb-0">Email</label>
-                                    <input type="email" class="form-control py-1" id="email" name="email"
-                                           th:field="*{email}">
-                                    <div th:if="${#fields.hasErrors('email')}" th:errors="*{email}"
-                                         class="text-danger small">
-                                        Error for email
-                                    </div>
+                                    <label for="newEmail" class="form-label mb-0">Email</label>
+                                    <input type="email" class="form-control py-1" id="newEmail" name="email" required>
+                                    <div id="errorNewEmail" class="text-danger small"></div>
                                 </div>
 
-                                <!-- Поле Password -->
                                 <div class="mb-3">
-                                    <label for="password" class="form-label mb-0">Password</label>
-                                    <input type="password" class="form-control py-1" id="password"
-                                           name="password" th:field="*{password}">
-                                    <div th:if="${#fields.hasErrors('password')}"
-                                         th:errors="*{password}" class="text-danger small">Error for password
-                                    </div>
+                                    <label for="newPassword" class="form-label mb-0">Password</label>
+                                    <input type="password" class="form-control py-1" id="newPassword" name="password"
+                                           required>
+                                    <div id="errorNewPassword" class="text-danger small"></div>
                                 </div>
 
-                                <!-- Поле Role (выпадающий список) -->
-                                <div class="mb-3 ">
-                                    <label for="role" class="form-label mb-0">Role</label>
-                                    <select class="form-select py-1" id="role" name="role" multiple
-                                            size="2" th:field="*{roles}">
-                                        <option th:each="role : ${allRoles}"
-                                                th:value="${role.id}"
-                                                th:selected="${newUser.roles?.contains(role)}"
-                                                th:text="${#strings.replace(role.role, 'ROLE_', '')}">
-                                        </option>
+                                <div class="mb-3">
+                                    <label for="newRole" class="form-label mb-0">Role</label>
+                                    <select class="form-select py-1" id="newRole" name="roles" multiple size="2"
+                                            required>
+                                        <!-- Опции будут заполняться JS -->
                                     </select>
+                                    <div id="errorNewRoles" class="text-danger small"></div>
                                 </div>
 
-                                <!-- Кнопка отправки -->
                                 <div class="mt-3">
-                                    <button type="submit" class="btn btn-success">Add new user</button>
+                                    <button type="submit" class="btn btn-success" id="saveNewUser">Add new user</button>
                                 </div>
-
                             </form>
-
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>
@@ -369,6 +340,14 @@
 
     // ✅ ОБРАБОТЧИК КНОПКИ "Edit" В МОДАЛЬНОМ ОКНЕ
     document.getElementById('saveEdit').addEventListener('click', function () {
+
+        // Блокируем кнопку на время запроса
+        const saveButton = document.getElementById('saveEdit');
+        const originalText = saveButton.textContent;
+        saveButton.disabled = true;
+        saveButton.textContent = 'Saving...';
+
+
         const modalElement = document.getElementById('editUserModal');
         const modal = bootstrap.Modal.getInstance(modalElement);
         const ageInput = document.getElementById('editAge').value.trim();   // Получаем значение из формы age
@@ -412,6 +391,14 @@
             },
             body: params.toString()
         })
+        // .then(response => {
+        // return response.json().then(data => {                         // для показа сообщения ответа
+        //     // Успех: показываем сообщение и перезагружаем страницу
+        //     alert(data.message);
+        //     modal.hide();
+        //     location.reload();
+        // });
+        // }
             .then(response => {
                 if (response.ok) {
                     // Успех — обновляем страницу
@@ -436,7 +423,6 @@
                 saveButton.disabled = false;
                 saveButton.textContent = originalText;
             });
-
     });
 
     // Функция: очистка ошибок и стилей
@@ -485,6 +471,131 @@
 </script>
 
 
+<!--Скрипт для таба New user-->
+<script>
+
+    // ✅ ОБРАБОТЧИК ФОРМЫ В ТАБЕ "NEW USER"
+    document.getElementById('saveNewUser').addEventListener('click', function () {
+        // e.preventDefault(); // Отменяем стандартную отправку формы (click заменить на submit (тут и в форме в типе кнопки) в function () добавить e)
+
+        // Блокируем кнопку на время запроса
+        const saveButton = document.getElementById('saveNewUser');
+        const originalText = saveButton.textContent;
+        saveButton.disabled = true;
+        saveButton.textContent = 'Adding...';
+
+        // Собираем данные формы
+
+        const ageInput = document.getElementById('newAge').value.trim();   // Получаем значение из формы age
+        const age = ageInput ? parseInt(ageInput, 10) : null;              // Если значение представлено, парсим, иначе присваиваем null
+
+        const formData = {
+            firstName: document.getElementById('newFirstName').value.trim(),
+            lastName: document.getElementById('newLastName').value.trim(),
+            age: age,
+            email: document.getElementById('newEmail').value.trim(),
+            password: document.getElementById('newPassword').value.trim(),
+            roles: Array.from(document.getElementById('newRole').selectedOptions).map(opt => opt.value)
+        };
+
+        // Очистка предыдущих ошибок и подсветки
+        clearValidationErrorsNew();
+
+        const params = new URLSearchParams();
+        params.append('firstName', formData.firstName);
+        params.append('lastName', formData.lastName);
+        // Правильная обработка age
+        if (formData.age !== null && formData.age !== undefined) {
+            params.append('age', formData.age);
+        }
+        // Если age null — не добавляем, Spring получит null
+        params.append('email', formData.email);
+        params.append('password', formData.password);
+        formData.roles.forEach(roleId => params.append('roles', roleId));
+
+        fetch('/admin/add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]')?.getAttribute('content')
+            },
+            body: params.toString()
+        })
+            .then(response => {
+                if (response.ok) {
+                    return response.json().then(data => {
+                        // Успех: показываем сообщение и перезагружаем страницу
+                        alert(data.message);
+                        location.reload();
+                    });
+                } else if (response.status === 400) {
+                    // Ошибки валидации: показываем под полями
+                    return response.json().then(errors => {
+                        console.log("Ошибки валидации при создании:", errors);
+                        displayValidationErrorsNew(errors);
+                    });
+                } else {
+                    alert('Неизвестная ошибка при создании пользователя');
+                }
+            })
+            .catch(err => {
+                console.error('Ошибка сети при создании пользователя:', err);
+                alert('Ошибка сети при отправке запроса');
+            })
+            .finally(() => {
+                // Восстанавливаем кнопку
+                saveButton.disabled = false;
+                saveButton.textContent = originalText;
+            });
+    });
+
+    // Функция: очистка ошибок для формы New user
+    function clearValidationErrorsNew() {
+        document.querySelectorAll('#newUserForm .is-invalid').forEach(el => el.classList.remove('is-invalid'));
+        document.querySelectorAll('.text-danger[id^="errorNew"]').forEach(el => el.textContent = '');
+    }
+
+    // Функция: показ ошибок для формы New user
+    function displayValidationErrorsNew(errors) {
+        const inputIdMap = {
+            'firstName': 'newFirstName',
+            'lastName': 'newLastName',
+            'age': 'newAge',
+            'email': 'newEmail',
+            'password': 'newPassword',
+            'roles': 'newRole'
+        };
+        const errorIdMap = {
+            'firstName': 'errorNewFirstName',
+            'lastName': 'errorNewLastName',
+            'age': 'errorNewAge',
+            'email': 'errorNewEmail',
+            'password': 'errorNewPassword',
+            'roles': 'errorNewRoles'
+        };
+
+        for (const [field, message] of Object.entries(errors)) {
+            const inputId = inputIdMap[field];
+            const errorId = errorIdMap[field];
+
+            if (inputId && errorId) {
+                const inputElement = document.getElementById(inputId);
+                const errorElement = document.getElementById(errorId);
+
+                if (inputElement) {
+                    inputElement.classList.add('is-invalid');
+                }
+                if (errorElement) {
+                    errorElement.textContent = message;
+                }
+            }
+        }
+    }
+
+</script>
+
+
 <!--Модальное окно удаления пользователя-->
 <div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="deleteUserModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -498,7 +609,6 @@
                     <div class="mb-3">
                         <label for="deleteId" class="form-label mb-0">ID</label>
                         <input type="text" class="form-control py-1" id="deleteId" disabled>
-                        <!-- Неизменяемое поле ID -->
                     </div>
                     <div class="mb-3">
                         <label for="deleteFirstName" class="form-label mb-0">First name</label>
@@ -602,35 +712,42 @@
 
 </script>
 
-<!--Скрипт автоматического открытия вкладки New user при ошибках валидации в форме создания пользователя-->
-<script th:inline="javascript">
-    document.addEventListener("DOMContentLoaded", function () {
-        // Получаем значение из модели Thymeleaf (по умолчанию false)
-        const openNewUserTab = /*[[${openNewUserTab != null ? openNewUserTab : false}]]*/ false;
-        console.log("[DEBUG] openNewUserTab:", openNewUserTab);
+<!--Скрипт автоматического заполнения списка ролей при открытии вкладки New user-->
+<script>
+    document.getElementById('new-user-tab').addEventListener('click', function () {
 
-        // Ищем элемент вкладки
-        const triggerEl = document.getElementById('new-user-tab');
-        console.log("[DEBUG] triggerEl:", triggerEl);
-
-        // Проверяем условия активации
-        if (openNewUserTab && triggerEl) {
-            try {
-                const tab = new bootstrap.Tab(triggerEl);
-                tab.show();
-                console.log("[SUCCESS] Вкладка 'New user' активирована!");
-            } catch (error) {
-                console.error("[ERROR] Ошибка при активации вкладки:", error);
-            }
-        } else {
-            console.warn(
-                "[WARNING] Активация вкладки пропущена. Причина:",
-                !openNewUserTab ? "openNewUserTab = false/undefined" : "",
-                !triggerEl ? "Элемент #new-user-tab не найден" : ""
-            );
+        const roleSelect = document.getElementById('newRole');
+        roleSelect.innerHTML = '';
+        if (roleSelect && allRolesData) {
+            allRolesData.forEach(role => {
+                const roleName = role.role.replace('ROLE_', '');
+                const option = document.createElement('option');
+                option.value = role.id;
+                option.text = roleName;
+                roleSelect.appendChild(option);
+            });
         }
     });
 </script>
+
+<!--Инициализация списка ролей в форме New user при загрузке страницы-->
+<!--<script th:inline="javascript">-->
+
+<!--    document.addEventListener("DOMContentLoaded", function () {-->
+<!--        const roleSelect = document.getElementById('newRole');-->
+<!--        if (roleSelect && allRolesData) {-->
+<!--            allRolesData.forEach(role => {-->
+<!--                const roleName = role.role.replace('ROLE_', '');-->
+<!--                const option = document.createElement('option');-->
+<!--                option.value = role.id;-->
+<!--                option.text = roleName;-->
+<!--                roleSelect.appendChild(option);-->
+<!--            });-->
+<!--        }-->
+<!--    });-->
+
+<!--</script>-->
+
 
 </body>
 </html>

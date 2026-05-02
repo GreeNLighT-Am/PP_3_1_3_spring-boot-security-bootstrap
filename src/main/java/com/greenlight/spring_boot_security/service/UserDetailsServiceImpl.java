@@ -27,7 +27,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
         User foundUser = user.get();
         return new org.springframework.security.core.userdetails.User(
-                foundUser.getUsername(),           // ← теперь email — это "username"
+                foundUser.getUsername(),
                 foundUser.getPassword(),
                 foundUser.getAuthorities()
         );
