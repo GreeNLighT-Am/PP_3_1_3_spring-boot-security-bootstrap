@@ -28,20 +28,9 @@
 </head>
 <body>
 
-<!-- Вывод сообщения об успешной операции, если оно есть -->
-<div th:if="${successMessage}" class="success-message">
-    <p th:text="${successMessage}"></p>
-</div>
-
-<!-- Вывод сообщения об ошибке, если оно есть -->
-<div th:if="${errorMessage}" class="error-message">
-    <p th:text="${errorMessage}"></p>
-
-    <a th:href="@{/admin}"><< Вернуться в админ-панель</a>
-</div>
 
 <!--Навбар-->
-<nav th:if="${errorMessage == null}" class="navbar navbar-expand-lg navbar-dark bg-dark px-3" style="height: 45px;">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark px-3" style="height: 45px;">
 
     <div class="d-flex align-items-center justify-content-start w-100">
         <span class="text-white me-1 fs-5 fw-bold" th:text="${authorisedUser.email}"></span>
@@ -62,7 +51,7 @@
 
 </nav>
 
-<div th:if="${errorMessage == null}" class="container-fluid vh-100">
+<div class="container-fluid vh-100">
     <div class="row vh-100">
 
         <div class="col-2 d-flex flex-column pt-3 px-0 mb-auto"><!-- Левая колонка (меню) -->
@@ -70,12 +59,11 @@
                 <a class="nav-link bg-primary text-white flex-fill text-start rounded" href="/admin">Admin</a>
                 <a class="nav-link flex-fill text-start" href="/user">User</a>
             </div>
-            <!-- Здесь можно добавить нижний блок (например, футер для меню) -->
         </div>
 
 
         <div class="col-10 bg-light d-flex flex-column px-4"> <!-- Правая колонка (контент) -->
-            <!-- Тут ваш текущий контент (табы, таблица и т. д.) -->
+
 
             <h1 class="mb-3 mt-3">Admin panel</h1>
 
@@ -165,7 +153,7 @@
 
                             <form id="newUserForm" class="container mx-auto text-center fw-bold"
                                   style="max-width: 400px;">
-                                <!-- Поля формы (аналогично модальному окну редактирования) -->
+
                                 <div class="mb-3">
                                     <label for="newFirstName" class="form-label mb-0">First name</label>
                                     <input type="text" class="form-control py-1" id="newFirstName" name="firstName"
@@ -203,7 +191,6 @@
                                     <label for="newRole" class="form-label mb-0">Role</label>
                                     <select class="form-select py-1" id="newRole" name="roles" multiple size="2"
                                             required>
-                                        <!-- Опции будут заполняться JS -->
                                     </select>
                                     <div id="errorNewRoles" class="text-danger small"></div>
                                 </div>
@@ -234,7 +221,7 @@
 
                     <div class="mb-3">
                         <label for="editId" class="form-label mb-0">ID</label>
-                        <input type="text" class="form-control py-1" id="editId" disabled> <!-- Неизменяемое поле ID -->
+                        <input type="text" class="form-control py-1" id="editId" disabled>
                     </div>
 
                     <div class="mb-3">
@@ -293,6 +280,24 @@
     /*]]>*/
 </script>
 
+<!--Скрипт автоматического заполнения списка ролей при открытии вкладки New user-->
+<script>
+    document.getElementById('new-user-tab').addEventListener('click', function () {
+
+        const roleSelect = document.getElementById('newRole');
+        roleSelect.innerHTML = '';
+        if (roleSelect && allRolesData) {
+            allRolesData.forEach(role => {
+                const roleName = role.role.replace('ROLE_', '');
+                const option = document.createElement('option');
+                option.value = role.id;
+                option.text = roleName;
+                roleSelect.appendChild(option);
+            });
+        }
+    });
+</script>
+
 
 <!--Скрипт для модального окна редактирования пользователя-->
 <script>
@@ -338,7 +343,7 @@
     });
 
 
-    // ✅ ОБРАБОТЧИК КНОПКИ "Edit" В МОДАЛЬНОМ ОКНЕ
+    //  Обработчик кнопки "Edit" в модальном окне редактирования пользователя
     document.getElementById('saveEdit').addEventListener('click', function () {
 
         // Блокируем кнопку на время запроса
@@ -372,16 +377,14 @@
         params.append('id', formData.id);
         params.append('firstName', formData.firstName);
         params.append('lastName', formData.lastName);
-        // Правильная обработка age
-        if (formData.age !== null && formData.age !== undefined) {
+        if (formData.age !== null && formData.age !== undefined) {  // Правильная обработка age, если age null — не добавляем, Spring получит null
             params.append('age', formData.age);
         }
-        // Если age null — не добавляем, Spring получит null
         params.append('email', formData.email);
         if (formData.password) params.append('password', formData.password);
         formData.roles.forEach(roleId => params.append('roles', roleId)); // ✅ Каждый элемент отдельно
 
-        // ✅ Отправляем на /admin/update — именно этот эндпоинт в контроллере
+        // Отправляем на /admin/update — именно этот эндпоинт в контроллере
         fetch('/admin/update', {
             method: 'POST',
             headers: {
@@ -391,14 +394,6 @@
             },
             body: params.toString()
         })
-        // .then(response => {
-        // return response.json().then(data => {                         // для показа сообщения ответа
-        //     // Успех: показываем сообщение и перезагружаем страницу
-        //     alert(data.message);
-        //     modal.hide();
-        //     location.reload();
-        // });
-        // }
             .then(response => {
                 if (response.ok) {
                     // Успех — обновляем страницу
@@ -474,7 +469,7 @@
 <!--Скрипт для таба New user-->
 <script>
 
-    // ✅ ОБРАБОТЧИК ФОРМЫ В ТАБЕ "NEW USER"
+    // Обработчик формы в табе "New user"
     document.getElementById('saveNewUser').addEventListener('click', function () {
         // e.preventDefault(); // Отменяем стандартную отправку формы (click заменить на submit (тут и в форме в типе кнопки) в function () добавить e)
 
@@ -485,7 +480,6 @@
         saveButton.textContent = 'Adding...';
 
         // Собираем данные формы
-
         const ageInput = document.getElementById('newAge').value.trim();   // Получаем значение из формы age
         const age = ageInput ? parseInt(ageInput, 10) : null;              // Если значение представлено, парсим, иначе присваиваем null
 
@@ -524,11 +518,8 @@
         })
             .then(response => {
                 if (response.ok) {
-                    return response.json().then(data => {
-                        // Успех: показываем сообщение и перезагружаем страницу
-                        alert(data.message);
-                        location.reload();
-                    });
+                    // Успех — обновляем страницу
+                    location.reload();
                 } else if (response.status === 400) {
                     // Ошибки валидации: показываем под полями
                     return response.json().then(errors => {
@@ -682,7 +673,7 @@
         });
     });
 
-
+    // Обработчик клика по кнопке Delete в модальном окне удаления пользователя
     document.getElementById('deleteUser').addEventListener('click', function () {
         const userId = document.getElementById('deleteId').value;
 
@@ -711,43 +702,6 @@
     });
 
 </script>
-
-<!--Скрипт автоматического заполнения списка ролей при открытии вкладки New user-->
-<script>
-    document.getElementById('new-user-tab').addEventListener('click', function () {
-
-        const roleSelect = document.getElementById('newRole');
-        roleSelect.innerHTML = '';
-        if (roleSelect && allRolesData) {
-            allRolesData.forEach(role => {
-                const roleName = role.role.replace('ROLE_', '');
-                const option = document.createElement('option');
-                option.value = role.id;
-                option.text = roleName;
-                roleSelect.appendChild(option);
-            });
-        }
-    });
-</script>
-
-<!--Инициализация списка ролей в форме New user при загрузке страницы-->
-<!--<script th:inline="javascript">-->
-
-<!--    document.addEventListener("DOMContentLoaded", function () {-->
-<!--        const roleSelect = document.getElementById('newRole');-->
-<!--        if (roleSelect && allRolesData) {-->
-<!--            allRolesData.forEach(role => {-->
-<!--                const roleName = role.role.replace('ROLE_', '');-->
-<!--                const option = document.createElement('option');-->
-<!--                option.value = role.id;-->
-<!--                option.text = roleName;-->
-<!--                roleSelect.appendChild(option);-->
-<!--            });-->
-<!--        }-->
-<!--    });-->
-
-<!--</script>-->
-
 
 </body>
 </html>

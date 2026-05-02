@@ -1,40 +1,56 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/default :: layout(~{::title}, ~{::section})}">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 
 <head>
     <title>Title from index page</title>
 </head>
 <body>
 
-<section th:fragment="section">
+<!-- Кнопка входа (eсли пользователь НЕ авторизован) -->
+<div th:if="${#request.userPrincipal == null}" style="text-align: left; margin: 20px 0;">
+    <form th:action="@{/login}" method="get" style="display: inline;">
+        <button type="submit"
+                style="background: #3538dc; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">
+            Войти
+        </button>
+    </form>
+</div>
 
-    <!-- Контент страницы -->
-    <h1 th:if="${#request.userPrincipal != null}" th:text="${#request.userPrincipal.name} + ', добро пожаловать на главную страницу!'">
-        Welcome message</h1>
+<h1 th:if="${#request.userPrincipal != null}"
+    th:text="${#request.userPrincipal.name} + ', добро пожаловать на главную страницу!'">
+    Welcome message</h1>
 
-    <div th:if="${#request.userPrincipal != null and #request.isUserInRole('ADMIN')}"
-         style="text-align: left; margin: 20px 0;">
-        <form th:action="@{/admin}" method="get" style="display: inline;">
-            <button type="submit"
-                    style="background: green; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">
-                Админ-панель
-            </button>
-        </form>
-    </div>
+<div th:if="${#request.userPrincipal != null and #request.isUserInRole('ADMIN')}"
+     style="text-align: left; margin: 20px 0;">
+    <form th:action="@{/admin}" method="get" style="display: inline;">
+        <button type="submit"
+                style="background: green; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">
+            Админ-панель
+        </button>
+    </form>
+</div>
 
-    <div th:if="${#request.userPrincipal != null and #request.isUserInRole('USER')}"
-         style="text-align: left; margin: 20px 0;">
-        <form th:action="@{/user}" method="get" style="display: inline;">
-            <button type="submit"
-                    style="background: gray; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">
-                Персональная страница
-            </button>
-        </form>
-    </div>
+<div th:if="${#request.userPrincipal != null and #request.isUserInRole('USER')}"
+     style="text-align: left; margin: 20px 0;">
+    <form th:action="@{/user}" method="get" style="display: inline;">
+        <button type="submit"
+                style="background: gray; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">
+            Персональная страница
+        </button>
+    </form>
+</div>
 
-    <h1 th:if="${#request.userPrincipal == null}">Добро пожаловать на главную страницу!</h1>
+<h1 th:if="${#request.userPrincipal == null}">Добро пожаловать на главную страницу!</h1>
 
-</section>
+<!-- Кнопка выхода (eсли пользователь авторизован) -->
+<div th:if="${#request.userPrincipal != null}" style="text-align: left; margin: 20px 0;">
+    <form th:action="@{/logout}" method="post" style="display: inline;">
+        <button type="submit"
+                style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">
+            Выйти
+        </button>
+    </form>
+</div>
 
 </body>
 </html>

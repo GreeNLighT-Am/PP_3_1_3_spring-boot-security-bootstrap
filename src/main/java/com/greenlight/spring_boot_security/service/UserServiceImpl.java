@@ -24,12 +24,6 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 
-//    @Override
-//    @Transactional(readOnly = true)
-//    public Optional<User> findUserWithRolesByFirstName(String username) {
-//        return userRepository.findUserWithRolesByFirstName(username);
-//    }
-
     @Override
     @Transactional(readOnly = true)
     public Optional<User> findUserWithRolesByEmail(String email) {
@@ -70,20 +64,6 @@ public class UserServiceImpl implements UserService {
     public void deleteUserById(int id) {
         userRepository.deleteById(id);
     }
-
-//    @Override
-//    @Transactional(readOnly = true)
-//    public boolean isNameUnique(String name, Integer userId) {
-//        Optional<User> existingUser = userRepository.findUserByFirstName(name);
-//        if (existingUser.isEmpty()) {
-//            return true; // Имя свободно
-//        }
-//        // Если userId не null, проверяем, что это тот же пользователь (редактирование)
-//        if (userId != null && existingUser.get().getId() == userId) {
-//            return true; // Это тот же пользователь — уникальность сохраняется
-//        }
-//        return false; // Найден другой пользователь с таким именем
-//    }
 
     @Override
     @Transactional(readOnly = true)

@@ -9,8 +9,6 @@ public interface UserService {
 
     void addUser(User user);
 
-//    Optional<User> findUserWithRolesByFirstName(String username);
-
     Optional<User> findUserWithRolesByEmail(String email);
 
     List<User> showAllUsers();
@@ -20,8 +18,6 @@ public interface UserService {
     void updateUser(User user);
 
     void deleteUserById(int id);
-
-//    boolean isNameUnique(String name, Integer userId);
 
     boolean isEmailUnique(String name, Integer userId);
 
