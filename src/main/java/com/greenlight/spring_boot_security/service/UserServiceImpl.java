@@ -44,18 +44,31 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void updateUser(User user) {
-        Optional<User> existingUser = findUserById(user.getId());
+    public void updateUser(User updatedUser) {
+        Optional<User> existingUser = findUserById(updatedUser.getId());
         if (existingUser.isPresent()) {
-            User dbUser = existingUser.get();
-            // Хэшируем пароль только если он был изменён
-            if (user.getPassword() != null && !user.getPassword().isEmpty() && !user.getPassword().equals(dbUser.getPassword())) {
-                user.setPassword(passwordEncoder.encode(user.getPassword()));
+            User currentUser = existingUser.get();
+
+            // Обработка пароля
+            String newPassword = updatedUser.getPassword();
+            String currentPassword = currentUser.getPassword();
+            // Проверяем что пароль передан
+            if (newPassword != null && !newPassword.trim().isEmpty()) {
+                // Проверяем, изменился ли пароль
+                if (!passwordEncoder.matches(newPassword, currentPassword)) {
+                    // Пароль действительно новый - хешируем
+                    updatedUser.setPassword(passwordEncoder.encode(newPassword));
+                } else {
+                    // Пароль не изменился - оставляем существующий хеш
+                    updatedUser.setPassword(currentPassword);
+                }
             } else {
-                // Сохраняем старый пароль
-                user.setPassword(dbUser.getPassword());
+                // Пароль не был передан (пустой или null)
+                // Сохраняем текущий пароль пользователя
+                updatedUser.setPassword(currentPassword);
             }
-            userRepository.save(user);
+
+            userRepository.save(updatedUser);
         }
     }
 
