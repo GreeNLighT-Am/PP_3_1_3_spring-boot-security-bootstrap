@@ -19,7 +19,6 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void addUser(User user) {
-        // Хэшируем пароль перед сохранением
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
     }
@@ -49,22 +48,15 @@ public class UserServiceImpl implements UserService {
         if (existingUser.isPresent()) {
             User currentUser = existingUser.get();
 
-            // Обработка пароля
             String newPassword = updatedUser.getPassword();
             String currentPassword = currentUser.getPassword();
-            // Проверяем что пароль передан
             if (newPassword != null && !newPassword.trim().isEmpty()) {
-                // Проверяем, изменился ли пароль
                 if (!passwordEncoder.matches(newPassword, currentPassword)) {
-                    // Пароль действительно новый - хешируем
                     updatedUser.setPassword(passwordEncoder.encode(newPassword));
                 } else {
-                    // Пароль не изменился - оставляем существующий хеш
                     updatedUser.setPassword(currentPassword);
                 }
             } else {
-                // Пароль не был передан (пустой или null)
-                // Сохраняем текущий пароль пользователя
                 updatedUser.setPassword(currentPassword);
             }
 
@@ -83,13 +75,12 @@ public class UserServiceImpl implements UserService {
     public boolean isEmailUnique(String email, Integer userId) {
         Optional<User> existingUser = userRepository.findUserByEmail(email);
         if (existingUser.isEmpty()) {
-            return true; // Email свободно
+            return true;
         }
-        // Если userId не null, проверяем, что это тот же пользователь (редактирование)
         if (userId != null && existingUser.get().getId() == userId) {
-            return true; // Это тот же пользователь — уникальность сохраняется
+            return true;
         }
-        return false; // Найден другой пользователь с таким email
+        return false;
     }
 
 }

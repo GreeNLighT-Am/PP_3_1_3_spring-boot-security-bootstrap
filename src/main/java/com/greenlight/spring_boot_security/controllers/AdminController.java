@@ -35,7 +35,6 @@ public class AdminController {
         List<User> allUsers = userService.showAllUsers();
         model.addAttribute("allUsers", allUsers);
 
-        // Ищем авторизованного пользователя в уже загруженном списке
         Optional<User> authorisedUser = allUsers.stream()
                 .filter(u -> u.getEmail().equals(principal.getName()))
                 .findFirst();
@@ -53,13 +52,11 @@ public class AdminController {
                                      BindingResult bindingResult,
                                      @RequestParam(value = "roles", required = false) List<Integer> roleIds) {
 
-        // Проверка уникальности email пользователя
         if (!userService.isEmailUnique(newUser.getEmail(), newUser.getId())) {
             bindingResult.rejectValue("email", "error.email", "Пользователь с таким email уже существует");
         }
 
         if (bindingResult.hasErrors()) {
-            // Для AJAX — возвращаем JSON с ошибками валидации
             Map<String, String> errors = new HashMap<>();
             bindingResult.getFieldErrors().forEach(error ->
                     errors.put(error.getField(), error.getDefaultMessage())
@@ -67,7 +64,6 @@ public class AdminController {
             return ResponseEntity.badRequest().body(errors);
         }
 
-        // Обработка ролей
         if (roleIds != null && !roleIds.isEmpty()) {
             List<Role> selectedRoles = roleRepository.findByIdIn(roleIds);
             newUser.setRoles(selectedRoles);
@@ -77,7 +73,6 @@ public class AdminController {
 
         userService.addUser(newUser);
 
-        // Для AJAX — возвращаем успех в JSON
         Map<String, String> response = new HashMap<>();
         response.put("message", String.format("Пользователь c email %s успешно создан.", newUser.getEmail()));
         return ResponseEntity.ok().body(response);
@@ -90,13 +85,11 @@ public class AdminController {
             BindingResult bindingResult,
             @RequestParam(value = "roles", required = false) List<Integer> roleIds) {
 
-        // Проверка уникальности email пользователя
         if (!userService.isEmailUnique(user.getEmail(), user.getId())) {
             bindingResult.rejectValue("email", "error.email", "Пользователь с таким email уже существует");
         }
 
         if (bindingResult.hasErrors()) {
-            // Для AJAX — возвращаем JSON с ошибками валидации
             Map<String, String> errors = new HashMap<>();
             bindingResult.getFieldErrors().forEach(error ->
                     errors.put(error.getField(), error.getDefaultMessage())
@@ -104,7 +97,6 @@ public class AdminController {
             return ResponseEntity.badRequest().body(errors);
         }
 
-        // Обработка ролей
         if (roleIds != null && !roleIds.isEmpty()) {
             List<Role> selectedRoles = roleRepository.findByIdIn(roleIds);
             user.setRoles(selectedRoles);
@@ -114,7 +106,6 @@ public class AdminController {
 
         userService.updateUser(user);
 
-        // Для AJAX — возвращаем успех в JSON
         Map<String, String> response = new HashMap<>();
         response.put("message", String.format("Пользователь с email %s успешно отредактирован.", user.getEmail()));
         return ResponseEntity.ok().body(response);

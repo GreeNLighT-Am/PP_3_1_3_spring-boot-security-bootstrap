@@ -6,7 +6,6 @@
 </head>
 <body>
 
-<!-- Кнопка входа (eсли пользователь НЕ авторизован) -->
 <div th:if="${#request.userPrincipal == null}" style="text-align: left; margin: 20px 0;">
     <form th:action="@{/login}" method="get" style="display: inline;">
         <button type="submit"
@@ -42,7 +41,6 @@
 
 <h1 th:if="${#request.userPrincipal == null}">Добро пожаловать на главную страницу!</h1>
 
-<!-- Кнопка выхода (eсли пользователь авторизован) -->
 <div th:if="${#request.userPrincipal != null}" style="text-align: left; margin: 20px 0;">
     <form th:action="@{/logout}" method="post" style="display: inline;">
         <button type="submit"

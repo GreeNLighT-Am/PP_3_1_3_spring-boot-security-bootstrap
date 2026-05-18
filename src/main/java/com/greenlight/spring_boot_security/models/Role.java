@@ -23,7 +23,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "roles")
-@ToString(exclude = "users") // избегаем циклических ссылок в toString
+@ToString(exclude = "users")
 public class Role implements GrantedAuthority {
 
     @Id
@@ -34,13 +34,12 @@ public class Role implements GrantedAuthority {
     @Column(name = "role")
     private String role;
 
-    // Двунаправленная связь с User
     @ManyToMany(mappedBy = "roles")
     @JsonIgnore
     private List<User> users;
 
     @Override
     public String getAuthority() {
-        return "ROLE_" + role; // добавляем префикс ROLE_
+        return "ROLE_" + role;
     }
 }

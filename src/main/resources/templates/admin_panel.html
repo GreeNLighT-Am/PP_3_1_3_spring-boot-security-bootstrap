@@ -1,35 +1,25 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-    <!-- Required meta tags -->
+
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <meta name="_csrf" th:content="${_csrf.token}"/>
 
-    <!-- Bootstrap CSS -->
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 
-    <!-- Optional JavaScript; choose one of the two! -->
-    <!-- Option 1: Bootstrap Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
             crossorigin="anonymous"></script>
-
-    <!-- Option 2: Separate Popper and Bootstrap JS -->
-    <!--
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
-    -->
 
     <title>Admin panel</title>
 
 </head>
 <body>
 
-
-<!--Навбар-->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-3" style="height: 45px;">
 
     <div class="d-flex align-items-center justify-content-start w-100">
@@ -54,7 +44,7 @@
 <div class="container-fluid vh-100">
     <div class="row vh-100">
 
-        <div class="col-2 d-flex flex-column pt-3 px-0 mb-auto"><!-- Левая колонка (меню) -->
+        <div class="col-2 d-flex flex-column pt-3 px-0 mb-auto">
             <div class="flex-grow-1 d-flex flex-column ">
                 <a class="nav-link bg-primary text-white flex-fill text-start rounded" href="/admin">Admin</a>
                 <a class="nav-link flex-fill text-start" href="/user">User</a>
@@ -62,13 +52,10 @@
         </div>
 
 
-        <div class="col-10 bg-light d-flex flex-column px-4"> <!-- Правая колонка (контент) -->
-
+        <div class="col-10 bg-light d-flex flex-column px-4">
 
             <h1 class="mb-3 mt-3">Admin panel</h1>
 
-
-            <!--Табы-->
             <nav class="nav nav-tabs" id="nav-tab" role="tablist">
 
                 <a class="nav-link active" id="users-table-tab" data-bs-toggle="tab" href="#users-table" role="tab"
@@ -79,21 +66,14 @@
 
             </nav>
 
-
             <div class="tab-content" id="nav-tabContent">
 
-                <!--Таб Users table-->
                 <div class="tab-pane fade show active" id="users-table" role="tabpanel"
                      aria-labelledby="users-table-tab">
 
-                    <!--Содержимое таба Users table-->
-
-                    <!--Карточка All users-->
                     <div class="card">
                         <h5 class="card-header d-flex align-items-center">All users</h5>
                         <div class="card-body">
-
-                            <!--Содержимое карточки All users-->
 
                             <table class="table card-body table-striped border-top">
                                 <thead>
@@ -138,18 +118,11 @@
                     </div>
                 </div>
 
-
-                <!--Таб New user-->
                 <div class="tab-pane fade" id="new-user" role="tabpanel" aria-labelledby="new-user-tab">
 
-                    <!--Содержимое таба New user-->
-
-                    <!--Карточка Add new user-->
                     <div class="card">
                         <h5 class="card-header d-flex align-items-center">Add new user</h5>
                         <div class="card-body">
-
-                            <!--Содержимое карточки Add new user-->
 
                             <form id="newUserForm" class="container mx-auto text-center fw-bold"
                                   style="max-width: 400px;">
@@ -208,7 +181,6 @@
 </div>
 
 
-<!--Модальное окно редактирования пользователя-->
 <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -273,14 +245,12 @@
     </div>
 </div>
 
-<!--Этот скрипт безопасно передаёт данные с сервера (из переменной allRoles) в клиентский JavaScript как константу allRolesData-->
 <script th:inline="javascript">
     /*<![CDATA[*/
     const allRolesData = /*[[${allRoles}]]*/ null;
     /*]]>*/
 </script>
 
-<!--Скрипт автоматического заполнения списка ролей при открытии вкладки New user-->
 <script>
     document.getElementById('new-user-tab').addEventListener('click', function () {
 
@@ -298,33 +268,26 @@
     });
 </script>
 
-
-<!--Скрипт для модального окна редактирования пользователя-->
 <script>
-    // Обработчик клика по кнопке "Edit"-->
     document.querySelectorAll('.btn-info').forEach(button => {
         button.addEventListener('click', function () {
             const row = this.closest('tr');
             const cells = row.querySelectorAll('td');
 
-            // Заполняем поля-->
             document.getElementById('editId').value = cells[0].textContent.trim();
             document.getElementById('editFirstName').value = cells[1].textContent.trim();
             document.getElementById('editLastName').value = cells[2].textContent.trim();
             document.getElementById('editAge').value = cells[3].textContent.trim();
             document.getElementById('editEmail').value = cells[4].textContent.trim();
 
-            // Получаем список ролей из ячейки-->
             const roleText = cells[5].textContent.trim();
             const selectedRoleNames = roleText.split(',').map(r => r.trim());
 
-            // Получаем <select> для ролей-->
             const roleSelect = document.getElementById('editRole');
             roleSelect.innerHTML = '';
 
-            // Заполняем <select>
             allRolesData.forEach(role => {
-                const roleName = role.role.replace('ROLE_', ''); // Преобразуем ROLE_ADMIN → ADMIN
+                const roleName = role.role.replace('ROLE_', '');
                 const option = document.createElement('option');
                 option.value = role.id;
                 option.text = roleName;
@@ -336,17 +299,13 @@
                 roleSelect.appendChild(option);
             });
 
-            // Очистка предыдущих ошибок и стилей
             clearValidationErrors();
 
         });
     });
 
-
-    //  Обработчик кнопки "Edit" в модальном окне редактирования пользователя
     document.getElementById('saveEdit').addEventListener('click', function () {
 
-        // Блокируем кнопку на время запроса
         const saveButton = document.getElementById('saveEdit');
         const originalText = saveButton.textContent;
         saveButton.disabled = true;
@@ -355,10 +314,9 @@
 
         const modalElement = document.getElementById('editUserModal');
         const modal = bootstrap.Modal.getInstance(modalElement);
-        const ageInput = document.getElementById('editAge').value.trim();   // Получаем значение из формы age
-        const age = ageInput ? parseInt(ageInput, 10) : null;               // Если значение представлено, парсим, иначе присваиваем null
+        const ageInput = document.getElementById('editAge').value.trim();
+        const age = ageInput ? parseInt(ageInput, 10) : null;
 
-        // Собираем данные формы в объект formData
         const formData = {
             id: parseInt(document.getElementById('editId').value),
             firstName: document.getElementById('editFirstName').value.trim(),
@@ -369,38 +327,33 @@
             roles: Array.from(document.getElementById('editRole').selectedOptions).map(opt => opt.value)
         };
 
-        // Очистка предыдущих ошибок и подсветки
         clearValidationErrors();
-
 
         const params = new URLSearchParams();
         params.append('id', formData.id);
         params.append('firstName', formData.firstName);
         params.append('lastName', formData.lastName);
-        if (formData.age !== null && formData.age !== undefined) {  // Правильная обработка age, если age null — не добавляем, Spring получит null
+        if (formData.age !== null && formData.age !== undefined) {
             params.append('age', formData.age);
         }
         params.append('email', formData.email);
         if (formData.password) params.append('password', formData.password);
-        formData.roles.forEach(roleId => params.append('roles', roleId)); // ✅ Каждый элемент отдельно
+        formData.roles.forEach(roleId => params.append('roles', roleId));
 
-        // Отправляем на /admin/update — именно этот эндпоинт в контроллере
         fetch('/admin/update', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
-                'X-Requested-With': 'XMLHttpRequest', // ← Чтобы сервер знал, что это AJAX
+                'X-Requested-With': 'XMLHttpRequest',
                 'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]')?.getAttribute('content')
             },
             body: params.toString()
         })
             .then(response => {
                 if (response.ok) {
-                    // Успех — обновляем страницу
                     modal.hide();
                     location.reload();
                 } else if (response.status === 400) {
-                    // Ошибки валидации
                     return response.json().then(errors => {
                         console.log("Ошибки валидации:", errors);
                         displayValidationErrors(errors);
@@ -414,19 +367,16 @@
                 alert('Ошибка сети при отправке запроса');
             })
             .finally(() => {
-                // Восстанавливаем кнопку
                 saveButton.disabled = false;
                 saveButton.textContent = originalText;
             });
     });
 
-    // Функция: очистка ошибок и стилей
     function clearValidationErrors() {
         document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
         document.querySelectorAll('.text-danger[id^="error"]').forEach(el => el.textContent = '');
     }
 
-    // Функция: показ ошибок и подсветка полей
     function displayValidationErrors(errors) {
         for (const [field, message] of Object.entries(errors)) {
             const inputIdMap = {
@@ -465,23 +415,17 @@
     }
 </script>
 
-
-<!--Скрипт для таба New user-->
 <script>
 
-    // Обработчик формы в табе "New user"
     document.getElementById('saveNewUser').addEventListener('click', function () {
-        // e.preventDefault(); // Отменяем стандартную отправку формы (click заменить на submit (тут и в форме в типе кнопки) в function () добавить e)
 
-        // Блокируем кнопку на время запроса
         const saveButton = document.getElementById('saveNewUser');
         const originalText = saveButton.textContent;
         saveButton.disabled = true;
         saveButton.textContent = 'Adding...';
 
-        // Собираем данные формы
-        const ageInput = document.getElementById('newAge').value.trim();   // Получаем значение из формы age
-        const age = ageInput ? parseInt(ageInput, 10) : null;              // Если значение представлено, парсим, иначе присваиваем null
+        const ageInput = document.getElementById('newAge').value.trim();
+        const age = ageInput ? parseInt(ageInput, 10) : null;
 
         const formData = {
             firstName: document.getElementById('newFirstName').value.trim(),
@@ -492,17 +436,14 @@
             roles: Array.from(document.getElementById('newRole').selectedOptions).map(opt => opt.value)
         };
 
-        // Очистка предыдущих ошибок и подсветки
         clearValidationErrorsNew();
 
         const params = new URLSearchParams();
         params.append('firstName', formData.firstName);
         params.append('lastName', formData.lastName);
-        // Правильная обработка age
         if (formData.age !== null && formData.age !== undefined) {
             params.append('age', formData.age);
         }
-        // Если age null — не добавляем, Spring получит null
         params.append('email', formData.email);
         params.append('password', formData.password);
         formData.roles.forEach(roleId => params.append('roles', roleId));
@@ -518,10 +459,8 @@
         })
             .then(response => {
                 if (response.ok) {
-                    // Успех — обновляем страницу
                     location.reload();
                 } else if (response.status === 400) {
-                    // Ошибки валидации: показываем под полями
                     return response.json().then(errors => {
                         console.log("Ошибки валидации при создании:", errors);
                         displayValidationErrorsNew(errors);
@@ -535,19 +474,16 @@
                 alert('Ошибка сети при отправке запроса');
             })
             .finally(() => {
-                // Восстанавливаем кнопку
                 saveButton.disabled = false;
                 saveButton.textContent = originalText;
             });
     });
 
-    // Функция: очистка ошибок для формы New user
     function clearValidationErrorsNew() {
         document.querySelectorAll('#newUserForm .is-invalid').forEach(el => el.classList.remove('is-invalid'));
         document.querySelectorAll('.text-danger[id^="errorNew"]').forEach(el => el.textContent = '');
     }
 
-    // Функция: показ ошибок для формы New user
     function displayValidationErrorsNew(errors) {
         const inputIdMap = {
             'firstName': 'newFirstName',
@@ -586,8 +522,6 @@
 
 </script>
 
-
-<!--Модальное окно удаления пользователя-->
 <div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="deleteUserModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -639,10 +573,7 @@
     </div>
 </div>
 
-
-<!--Скрипт для модального окна удаления пользователя-->
 <script>
-    // Получаем кнопку Delete и связываем с обработчиком клика
     document.querySelectorAll('.btn-danger').forEach(button => {
         button.addEventListener('click', function () {
             const row = this.closest('tr');
@@ -673,7 +604,6 @@
         });
     });
 
-    // Обработчик клика по кнопке Delete в модальном окне удаления пользователя
     document.getElementById('deleteUser').addEventListener('click', function () {
         const userId = document.getElementById('deleteId').value;
 
