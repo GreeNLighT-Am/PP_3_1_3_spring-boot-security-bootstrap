@@ -351,15 +351,26 @@
         })
             .then(response => {
                 if (response.ok) {
-                    modal.hide();
-                    location.reload();
+                    return response.json().then(data => {
+                        modal.hide();
+                        showAlert('success', data.message || 'Пользователь успешно обновлен');
+                        setTimeout(() => location.reload(), 5000);
+                    });
                 } else if (response.status === 400) {
                     return response.json().then(errors => {
-                        console.log("Ошибки валидации:", errors);
+                        console.log("Ошибки валидации при редактировании пользователя:", errors);
                         displayValidationErrors(errors);
                     });
+                } else if (response.status === 404) {
+                    return response.json().then(data => {
+                        showAlert('danger', data.error || 'Ошибка при обновлении пользователя');
+                        showAlert('warning', 'Попробуйте обновить страницу.');
+                    })
                 } else {
-                    alert('Неизвестная ошибка');
+                    return response.json().then(data => {
+                        showAlert('danger', data.error || 'Неизвестная ошибка при обновлении пользователя');
+                        showAlert('warning', 'Попробуйте обновить страницу.');
+                    })
                 }
             })
             .catch(err => {
@@ -607,6 +618,8 @@
     document.getElementById('deleteUser').addEventListener('click', function () {
         const userId = document.getElementById('deleteId').value;
 
+        const modal = bootstrap.Modal.getInstance(document.getElementById('deleteUserModal'));
+
         fetch('/admin/delete', {
             method: 'POST',
             headers: {
@@ -616,20 +629,70 @@
             body: 'id=' + userId
         })
             .then(response => {
-                if (response.redirected) {
-                    window.location.href = response.url;
+                if (response.ok) {
+                    return response.json().then(data => {
+                        modal.hide();
+                        showAlert('success', data.message || 'Пользователь успешно обновлен');
+                        setTimeout(() => location.reload(), 5000);
+                    });
+                } else if (response.status === 404) {
+                    return response.json().then(data => {
+                        showAlert('danger', data.error || 'Ошибка при удалении пользователя');
+                        showAlert('warning', 'Попробуйте обновить страницу.');
+                    })
                 } else {
-                    alert('Ошибка при удалении');
+                    return response.json().then(data => {
+                        showAlert('danger', data.error || 'Неизвестная ошибка при удалении пользователя');
+                        showAlert('warning', 'Попробуйте обновить страницу.');
+                    })
                 }
             })
             .catch(err => {
                 console.error('Ошибка:', err);
                 alert('Ошибка сети');
             });
-
-        const modal = bootstrap.Modal.getInstance(document.getElementById('deleteUserModal'));
-        modal.hide();
     });
+
+</script>
+
+<script>
+
+    function showAlert(type, message) {
+        const alertContainer = document.getElementById('alertContainer') || createAlertContainer();
+
+        const existingAlerts = alertContainer.querySelectorAll(`.alert-${type}`);
+        existingAlerts.forEach(alert => alert.remove());
+
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type} alert-dismissible fade show`;
+        alert.role = 'alert';
+        alert.innerHTML = `
+        <strong>${type === 'success' ? '✓' : type === 'danger' ? '✗' : '⚠'}</strong> ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    `;
+
+        alertContainer.appendChild(alert);
+
+        setTimeout(() => {
+            if (alert.parentNode) {
+                alert.classList.remove('show');
+                setTimeout(() => {
+                    if (alert.parentNode) {
+                        alert.remove();
+                    }
+                }, 300);
+            }
+        }, 5000);
+    }
+
+    function createAlertContainer() {
+        const container = document.createElement('div');
+        container.id = 'alertContainer';
+        container.className = 'position-fixed top-0 end-0 p-3';
+        container.style.zIndex = '9999';
+        document.body.appendChild(container);
+        return container;
+    }
 
 </script>
 

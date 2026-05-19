@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.greenlight.spring_boot_security.models.User;
 import com.greenlight.spring_boot_security.repositories.UserRepository;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,6 +16,22 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+
+    private void processPassword(User updatedUser, User currentUser) {
+
+        String newPassword = updatedUser.getPassword();
+        String currentPassword = currentUser.getPassword();
+
+        if (newPassword != null && !newPassword.trim().isEmpty()) {
+            if (!passwordEncoder.matches(newPassword, currentPassword)) {
+                updatedUser.setPassword(passwordEncoder.encode(newPassword));
+            } else {
+                updatedUser.setPassword(currentPassword);
+            }
+        } else {
+            updatedUser.setPassword(currentPassword);
+        }
+    }
 
     @Override
     @Transactional
@@ -38,35 +55,31 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     public Optional<User> findUserById(int id) {
-        return userRepository.findUserById(id);
+        return userRepository.findById(id);
     }
 
     @Override
     @Transactional
     public void updateUser(User updatedUser) {
         Optional<User> existingUser = findUserById(updatedUser.getId());
-        if (existingUser.isPresent()) {
-            User currentUser = existingUser.get();
 
-            String newPassword = updatedUser.getPassword();
-            String currentPassword = currentUser.getPassword();
-            if (newPassword != null && !newPassword.trim().isEmpty()) {
-                if (!passwordEncoder.matches(newPassword, currentPassword)) {
-                    updatedUser.setPassword(passwordEncoder.encode(newPassword));
-                } else {
-                    updatedUser.setPassword(currentPassword);
-                }
-            } else {
-                updatedUser.setPassword(currentPassword);
-            }
-
-            userRepository.save(updatedUser);
+        if (existingUser.isEmpty()) {
+            throw new EntityNotFoundException("Пользователь с ID " + updatedUser.getId() + " не найден.");
         }
+
+        User currentUser = existingUser.get();
+
+        processPassword(updatedUser, currentUser);
+
+        userRepository.save(updatedUser);
     }
 
     @Override
     @Transactional
     public void deleteUserById(int id) {
+        if (!userRepository.existsById(id)) {
+            throw new EntityNotFoundException("Пользователь с ID " + id + " не найден.");
+        }
         userRepository.deleteById(id);
     }
 
@@ -81,6 +94,11 @@ public class UserServiceImpl implements UserService {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public boolean existsById(int id) {
+        return userRepository.existsById(id);
     }
 
 }
